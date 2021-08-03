@@ -1,11 +1,5 @@
 package org.generationcp.commons.util;
 
-import java.io.File;
-import java.io.IOException;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Random;
-
 import org.generationcp.middleware.data.initializer.ProjectTestDataInitializer;
 import org.generationcp.middleware.pojos.workbench.CropType;
 import org.generationcp.middleware.pojos.workbench.Project;
@@ -14,13 +8,19 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.io.File;
+import java.io.IOException;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Random;
+
 public class InstallationDirectoryUtilTest {
 	
 	private static final String DUMMY_PROJECT_NAME = "Maize Tutorial Program";
 	private static final String TEMP_FILENAME = "temp";
 	private static final String XLS_EXTENSION = ".xls";
-	
-	private InstallationDirectoryUtil installationDirUtil = new InstallationDirectoryUtil();
+
+	private final InstallationDirectoryUtil installationDirUtil = new InstallationDirectoryUtil();
 	
 	private Project project;
 	
@@ -37,7 +37,8 @@ public class InstallationDirectoryUtilTest {
 	
 	@Test
 	public void testCreateWorkspaceDirectoriesForProject() {
-		this.installationDirUtil.createWorkspaceDirectoriesForProject(this.project);
+		this.installationDirUtil
+			.createWorkspaceDirectoriesForProject(this.project.getCropType().getCropName(), this.project.getProjectName());
 
 		final File projectWorkspaceDirectory =
 				new File(InstallationDirectoryUtil.WORKSPACE_DIR + File.separator + this.project.getCropType().getCropName(), this.project.getProjectName());
@@ -65,8 +66,9 @@ public class InstallationDirectoryUtilTest {
 		final File projectWorkspaceDirectory =
 				new File(InstallationDirectoryUtil.WORKSPACE_DIR + File.separator + cropName, this.project.getProjectName());
 		projectWorkspaceDirectory.mkdirs();
-		
-		this.installationDirUtil.createWorkspaceDirectoriesForProject(this.project);
+
+		this.installationDirUtil
+			.createWorkspaceDirectoriesForProject(this.project.getCropType().getCropName(), this.project.getProjectName());
 		
 		Assert.assertTrue(projectWorkspaceDirectory.exists());
 		// Check that "breeding_view" directory and sub-folders will not be created anymore
@@ -184,13 +186,13 @@ public class InstallationDirectoryUtilTest {
 	@Test
 	public void testGetInputDirectoryForTool() {
 		try {
-			String inputDirectory = this.installationDirUtil.getInputDirectoryForProjectAndTool(project, ToolName.BREEDING_VIEW);
+			final String inputDirectory = this.installationDirUtil.getInputDirectoryForProjectAndTool(project, ToolName.BREEDING_VIEW);
 			Assert.assertNotNull(inputDirectory);
 			Assert.assertEquals(new File(InstallationDirectoryUtil.WORKSPACE_DIR + File.separator
 					+ project.getCropType().getCropName() + File.separator + this.project.getProjectName() + File.separator + ToolName.BREEDING_VIEW.getName() + File.separator
 					+ InstallationDirectoryUtil.INPUT).getAbsolutePath(), new File(inputDirectory).getAbsolutePath());
-			
-		} catch (IllegalStateException e) {
+
+		} catch (final IllegalStateException e) {
 			Assert.fail("There should be no exception thrown");
 		}
 	}
@@ -198,13 +200,13 @@ public class InstallationDirectoryUtilTest {
 	@Test
 	public void testGetOutputDirectoryForTool() {
 		try {
-			String outputDirectory = this.installationDirUtil.getOutputDirectoryForProjectAndTool(project, ToolName.BREEDING_VIEW);
+			final String outputDirectory = this.installationDirUtil.getOutputDirectoryForProjectAndTool(project, ToolName.BREEDING_VIEW);
 			Assert.assertNotNull(outputDirectory);
 			Assert.assertEquals(new File(InstallationDirectoryUtil.WORKSPACE_DIR + File.separator
 					+ project.getCropType().getCropName() + File.separator + this.project.getProjectName() + File.separator + ToolName.BREEDING_VIEW.getName() + File.separator
 					+ InstallationDirectoryUtil.OUTPUT).getAbsolutePath(), new File(outputDirectory).getAbsolutePath());
-			
-		} catch (IllegalStateException e) {
+
+		} catch (final IllegalStateException e) {
 			Assert.fail("There should be no exception thrown");
 		}
 	}
@@ -222,8 +224,8 @@ public class InstallationDirectoryUtilTest {
 			final File tempFile = new File(tempFilePath);
 			Assert.assertTrue(tempFile.exists());
 			Assert.assertTrue(tempFile.getName().startsWith(TEMP_FILENAME));
-			
-		} catch (IOException e) {
+
+		} catch (final IOException e) {
 			Assert.fail("There should be no exception thrown");
 		}
 	}
@@ -243,8 +245,8 @@ public class InstallationDirectoryUtilTest {
 			Assert.assertTrue(tempFile.exists());
 			// Check that "temp" was used as prefix in place of original prefix since it was too short
 			Assert.assertTrue(tempFile.getName().startsWith(InstallationDirectoryUtil.TEMP));
-			
-		} catch (IOException | IllegalArgumentException e) {
+
+		} catch (final IOException | IllegalArgumentException e) {
 			Assert.fail("There should be no exception thrown");
 		}
 	}
@@ -264,7 +266,7 @@ public class InstallationDirectoryUtilTest {
 			}
 			Assert.assertEquals(toolDirectoryFile.getAbsolutePath() + File.separator + outputTempDirectory + File.separator + TEMP_FILENAME
 					+ XLS_EXTENSION, tempFilePath);
-		} catch (IOException e) {
+		} catch (final IOException e) {
 			Assert.fail("There should be no exception thrown");
 		}
 	}
