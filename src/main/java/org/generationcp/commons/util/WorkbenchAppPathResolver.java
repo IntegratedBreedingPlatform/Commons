@@ -1,14 +1,14 @@
 
 package org.generationcp.commons.util;
 
-import javax.servlet.http.HttpServletRequest;
-
 import org.apache.commons.lang3.StringUtils;
 import org.generationcp.middleware.pojos.workbench.Tool;
 import org.generationcp.middleware.pojos.workbench.ToolName;
 import org.generationcp.middleware.pojos.workbench.ToolType;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
+
+import javax.servlet.http.HttpServletRequest;
 
 /**
  * Created by cyrus on 3/6/15.
@@ -26,12 +26,9 @@ public class WorkbenchAppPathResolver {
 		final ServletRequestAttributes requestAttributes = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
 		final HttpServletRequest request = requestAttributes.getRequest();
 
-		// When deployed using docker, we can store information (such as scheme, port configuration) as system variables
-		// Otherwise, in non-docker setup, these system variables are not expected to exist so value is retrieved from request
-		final String bms_scheme = System.getenv(BMS_SCHEME);
-		final String scheme = StringUtils.isEmpty(bms_scheme) ? request.getScheme() : bms_scheme;
+		final String scheme = getScheme(request);
 		final String bms_port = System.getenv(BMS_PORT);
-		int port = StringUtils.isEmpty(bms_port) ? request.getServerPort() : Integer.parseInt(bms_port);
+		final int port = StringUtils.isEmpty(bms_port) ? request.getServerPort() : Integer.parseInt(bms_port);
 
 		final String paramFormat = !param.isEmpty() ? "?%s" : "";
 		final String urlFormat = "%s://%s:%d/%s" + paramFormat;
@@ -75,5 +72,12 @@ public class WorkbenchAppPathResolver {
 		}
 
 		return appPath;
+	}
+
+	public static String getScheme(final HttpServletRequest request) {
+		// When deployed using docker, we can store information (such as scheme, port configuration) as system variables
+		// Otherwise, in non-docker setup, these system variables are not expected to exist so value is retrieved from request
+		final String bmsScheme = System.getenv(BMS_SCHEME);
+		return StringUtils.isEmpty(bmsScheme) ? request.getScheme() : bmsScheme;
 	}
 }
