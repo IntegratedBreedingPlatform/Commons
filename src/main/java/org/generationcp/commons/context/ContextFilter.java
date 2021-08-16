@@ -21,16 +21,16 @@ public class ContextFilter implements Filter {
 	static final String HTTPS = "https";
 
 	@Override
-	public void init(FilterConfig filterConfig) throws ServletException {
+	public void init(final FilterConfig filterConfig) throws ServletException {
 		// NOOP
 	}
 
 	@Override
-	public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse, FilterChain chain) throws IOException,
+	public void doFilter(final ServletRequest servletRequest, final ServletResponse servletResponse, final FilterChain chain) throws IOException,
 			ServletException {
 
-		HttpServletRequest request = (HttpServletRequest) servletRequest;
-		HttpServletResponse response = (HttpServletResponse) servletResponse;
+		final HttpServletRequest request = (HttpServletRequest) servletRequest;
+		final HttpServletResponse response = (HttpServletResponse) servletResponse;
 		response.setHeader("x-frame-options", "SAMEORIGIN");
 
 		if (!ContextUtil.isStaticResourceRequest(request.getRequestURI())) {
@@ -53,14 +53,14 @@ public class ContextFilter implements Filter {
 			}
 
 			else {
-				ContextInfo contextInfo = (ContextInfo) WebUtils.getSessionAttribute(request, ContextConstants.SESSION_ATTR_CONTEXT_INFO);
+				final ContextInfo contextInfo = (ContextInfo) WebUtils.getSessionAttribute(request, ContextConstants.SESSION_ATTR_CONTEXT_INFO);
 
 				if (contextInfo == null) {
 					// this happens when session attribute gets lost due to session.invalidate() calls when navigating within application.
 					// restore session attribure from cookies
-					Cookie userIdCookie = WebUtils.getCookie(request, ContextConstants.PARAM_LOGGED_IN_USER_ID);
-					Cookie selectedProjectIdCookie = WebUtils.getCookie(request, ContextConstants.PARAM_SELECTED_PROJECT_ID);
-					Cookie authTokenCookie = WebUtils.getCookie(request, ContextConstants.PARAM_AUTH_TOKEN);
+					final Cookie userIdCookie = WebUtils.getCookie(request, ContextConstants.PARAM_LOGGED_IN_USER_ID);
+					final Cookie selectedProjectIdCookie = WebUtils.getCookie(request, ContextConstants.PARAM_SELECTED_PROJECT_ID);
+					final Cookie authTokenCookie = WebUtils.getCookie(request, ContextConstants.PARAM_AUTH_TOKEN);
 					if (userIdCookie != null && selectedProjectIdCookie != null) {
 						ContextUtil.setContextInfo(request, Integer.valueOf(userIdCookie.getValue()),
 								Long.valueOf(selectedProjectIdCookie.getValue()), authTokenCookie.getValue());

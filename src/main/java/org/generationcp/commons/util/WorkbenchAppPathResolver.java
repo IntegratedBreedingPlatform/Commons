@@ -15,10 +15,14 @@ import javax.servlet.http.HttpServletRequest;
  */
 public class WorkbenchAppPathResolver {
 
+	private WorkbenchAppPathResolver() {
+		// Private constructor for utility class
+	}
+
 	static final String BMS_SCHEME = "BMS_SCHEME";
 	static final String BMS_PORT = "BMS_PORT";
 
-	public static String getFullWebAddress(String url) {
+	public static String getFullWebAddress(final String url) {
 		return WorkbenchAppPathResolver.getFullWebAddress(url, "");
 	}
 
@@ -35,22 +39,22 @@ public class WorkbenchAppPathResolver {
 		final String serverName = request.getServerName();
 
 		final String finalUrl = '/' == url.charAt(0) ? url.substring(1) : url;
-		final String finalParam = param.startsWith("?") | param.startsWith("&") ? param.substring(1) : param;
+		final String finalParam = param.startsWith("?") || param.startsWith("&") ? param.substring(1) : param;
 
 		return !url.startsWith("http") ? String.format(urlFormat, scheme, serverName, port, finalUrl, finalParam) : String.format("%s" + paramFormat,
 				finalUrl, finalParam);
 	}
 
 
-	public static String getWorkbenchAppPath(Tool tool, String idParam) {
+	public static String getWorkbenchAppPath(final Tool tool, final String idParam) {
 		return WorkbenchAppPathResolver.getWorkbenchAppPath(tool, idParam, "");
 	}
 
-	public static String getWorkbenchAppPath(Tool tool, Integer idParam) {
+	public static String getWorkbenchAppPath(final Tool tool, final Integer idParam) {
 		return WorkbenchAppPathResolver.getWorkbenchAppPath(tool, String.valueOf(idParam), "");
 	}
 
-	public static String getWorkbenchAppPath(Tool tool, String idParam, String addtlParam) {
+	public static String getWorkbenchAppPath(final Tool tool, final String idParam, final String addtlParam) {
 		String appPath = tool.getPath();
 
 		// make sure no trailing slash in url path
