@@ -1067,7 +1067,6 @@ public class BreedingViewImportServiceImplTest {
 	}
 
 	@Test
-	@Ignore()
 	public void testCreateGeolocationIdEnvironmentMapEnvironmentFactorIsLocationIDVariable() {
 
 		this.factorVariableTypes.add(this.createEnvironmentVariableType(BreedingViewImportServiceImplTest.LOCATION_NAME));
