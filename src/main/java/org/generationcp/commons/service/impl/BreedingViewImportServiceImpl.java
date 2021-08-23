@@ -58,6 +58,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Objects;
 import java.util.Set;
 
 public class BreedingViewImportServiceImpl implements BreedingViewImportService {
@@ -653,7 +654,7 @@ public class BreedingViewImportServiceImpl implements BreedingViewImportService 
 		TrialEnvironment trialEnvironment = null;
 
 		if (isSelectedEnvironmentFactorALocation) {
-			final String locationId = locationNameToIdMap.get(environmentName);
+			final String locationId = this.getLocationIdFromMap(locationNameToIdMap, environmentName);
 			trialEnvironment = trialEnvironments.findOnlyOneByLocalName(environmentFactor, locationId);
 		} else {
 			trialEnvironment = trialEnvironments.findOnlyOneByLocalName(environmentFactor, environmentName);
@@ -665,6 +666,10 @@ public class BreedingViewImportServiceImpl implements BreedingViewImportService 
 			return null;
 		}
 
+	}
+
+	private String getLocationIdFromMap(final Map<String, String> locationIdMap, final String value){
+		return locationIdMap.entrySet().stream().filter(entry -> Objects.equals(entry.getValue(), value)).findAny().get().getKey();
 	}
 
 	/**
