@@ -47,6 +47,7 @@ public class HTTPRequestAwareServletFilter implements Filter {
 		HttpServletRequest req = (HttpServletRequest) servletRequest;
 		HttpServletResponse resp = (HttpServletResponse) servletResponse;
 		resp.setHeader("x-frame-options", "SAMEORIGIN");
+		resp.setHeader("X-Content-Type-Options", "nosniff");
 
 		String requestUri =
 				String.format("%s:%s%s?%s", req.getServerName(), req.getServerPort(), req.getRequestURI(), req.getQueryString());
