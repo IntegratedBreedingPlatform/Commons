@@ -58,6 +58,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Objects;
 import java.util.Set;
 
 public class BreedingViewImportServiceImpl implements BreedingViewImportService {
@@ -621,7 +622,7 @@ public class BreedingViewImportServiceImpl implements BreedingViewImportService 
 		final TrialEnvironments trialEnvironments = this.studyDataManager.getTrialEnvironmentsInDataset(datasetId);
 
 		final boolean isSelectedEnvironmentFactorALocation = this.studyDataManager.isLocationIdVariable(studyId, environmentFactorName);
-		final Map<String, String> locationNameToIdMap = this.studyDataManager.createInstanceLocationIdToNameMapFromStudy(studyId).inverse();
+		final Map<String, String> locationIdToNameMap = this.studyDataManager.createInstanceLocationIdToNameMapFromStudy(studyId);
 
 		// Only create map entries for environments present in SSA Output,
 		// because only these have Summary Statistic values
@@ -633,10 +634,10 @@ public class BreedingViewImportServiceImpl implements BreedingViewImportService 
 			// comma again
 			final String sanitizedEnvironmentFactor = environmentName.replace(";", ",");
 			Integer geolocationId = this.getTrialEnvironmentId(trialEnvironments, environmentFactorName, sanitizedEnvironmentFactor,
-				isSelectedEnvironmentFactorALocation, locationNameToIdMap);
+				isSelectedEnvironmentFactorALocation, locationIdToNameMap);
 			if (geolocationId == null) {
 				geolocationId = this.getTrialEnvironmentId(trialEnvironments, environmentFactorName, environmentName,
-					isSelectedEnvironmentFactorALocation, locationNameToIdMap);
+					isSelectedEnvironmentFactorALocation, locationIdToNameMap);
 			}
 
 			envFactorTolocationIdMap.put(geolocationId, environmentName);
@@ -653,7 +654,7 @@ public class BreedingViewImportServiceImpl implements BreedingViewImportService 
 		TrialEnvironment trialEnvironment = null;
 
 		if (isSelectedEnvironmentFactorALocation) {
-			final String locationId = locationNameToIdMap.get(environmentName);
+			final String locationId = this.getLocationIdFromMap(locationNameToIdMap, environmentName);
 			trialEnvironment = trialEnvironments.findOnlyOneByLocalName(environmentFactor, locationId);
 		} else {
 			trialEnvironment = trialEnvironments.findOnlyOneByLocalName(environmentFactor, environmentName);
@@ -665,6 +666,10 @@ public class BreedingViewImportServiceImpl implements BreedingViewImportService 
 			return null;
 		}
 
+	}
+
+	private String getLocationIdFromMap(final Map<String, String> locationIdMap, final String value){
+		return locationIdMap.entrySet().stream().filter(entry -> Objects.equals(entry.getValue(), value)).findAny().get().getKey();
 	}
 
 	/**

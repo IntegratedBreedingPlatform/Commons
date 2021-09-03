@@ -33,98 +33,101 @@ public class ContextFilterTest {
 
 	@Before
 	public void setup(){
-		contextFilter = new ContextFilter();
+		this.contextFilter = new ContextFilter();
 	}
 
 	@Test
 	public void testDoFilterWithContextInfoInRequestParams() throws Exception{
 		final String contextPath = "/contextPath";
-		Mockito.when(httpServletRequest.getRequestURI()).thenReturn(contextPath);
+		Mockito.when(this.httpServletRequest.getRequestURI()).thenReturn(contextPath);
 
-		Mockito.when(httpServletRequest.getParameter(ContextConstants.PARAM_SELECTED_PROJECT_ID)).thenReturn("1");
-		Mockito.when(httpServletRequest.getParameter(ContextConstants.PARAM_LOGGED_IN_USER_ID)).thenReturn("1");
-		Mockito.when(httpServletRequest.getParameter(ContextConstants.PARAM_AUTH_TOKEN)).thenReturn("authToken");
-		Mockito.when(httpServletRequest.getSession()).thenReturn(httpSession);
-		Mockito.when(httpServletRequest.getContextPath()).thenReturn(contextPath);
+		Mockito.when(this.httpServletRequest.getParameter(ContextConstants.PARAM_SELECTED_PROJECT_ID)).thenReturn("1");
+		Mockito.when(this.httpServletRequest.getParameter(ContextConstants.PARAM_LOGGED_IN_USER_ID)).thenReturn("1");
+		Mockito.when(this.httpServletRequest.getParameter(ContextConstants.PARAM_AUTH_TOKEN)).thenReturn("authToken");
+		Mockito.when(this.httpServletRequest.getSession()).thenReturn(this.httpSession);
+		Mockito.when(this.httpServletRequest.getContextPath()).thenReturn(contextPath);
+		Mockito.when(this.httpServletRequest.getScheme()).thenReturn("https");
 
-		contextFilter.doFilter(httpServletRequest, httpServletResponse, filterChain);
+		this.contextFilter.doFilter(this.httpServletRequest, this.httpServletResponse, this.filterChain);
 
-		ContextInfo expectedContextInfo = new ContextInfo(1, 1L, "authToken");
+		final ContextInfo expectedContextInfo = new ContextInfo(1, 1L, "authToken");
 
-		Cookie expectedUserIdCookie = this.getCookie(ContextConstants.PARAM_LOGGED_IN_USER_ID, "1", contextPath);
-		Cookie expectedProjectIdCookie = this.getCookie(ContextConstants.PARAM_SELECTED_PROJECT_ID, "1", contextPath);
-		Cookie expectedAuthTokenCookie = this.getCookie(ContextConstants.PARAM_AUTH_TOKEN, "authToken", contextPath);
+		final Cookie expectedUserIdCookie = this.getCookie(ContextConstants.PARAM_LOGGED_IN_USER_ID, "1", contextPath, true);
+		final Cookie expectedProjectIdCookie = this.getCookie(ContextConstants.PARAM_SELECTED_PROJECT_ID, "1", contextPath, true);
+		final Cookie expectedAuthTokenCookie = this.getCookie(ContextConstants.PARAM_AUTH_TOKEN, "authToken", contextPath, true);
 
-		Mockito.verify(httpSession).setAttribute(Matchers.eq(ContextConstants.SESSION_ATTR_CONTEXT_INFO), Matchers.refEq(expectedContextInfo));
-		Mockito.verify(httpServletResponse).addCookie(Matchers.refEq(expectedUserIdCookie));
-		Mockito.verify(httpServletResponse).addCookie(Matchers.refEq(expectedProjectIdCookie));
-		Mockito.verify(httpServletResponse).addCookie(Matchers.refEq(expectedAuthTokenCookie));
-		Mockito.verify(filterChain).doFilter(Matchers.refEq(httpServletRequest),Matchers.refEq(httpServletResponse));
+		Mockito.verify(this.httpSession).setAttribute(Matchers.eq(ContextConstants.SESSION_ATTR_CONTEXT_INFO), Matchers.refEq(expectedContextInfo));
+		Mockito.verify(this.httpServletResponse).addCookie(Matchers.refEq(expectedUserIdCookie));
+		Mockito.verify(this.httpServletResponse).addCookie(Matchers.refEq(expectedProjectIdCookie));
+		Mockito.verify(this.httpServletResponse).addCookie(Matchers.refEq(expectedAuthTokenCookie));
+		Mockito.verify(this.filterChain).doFilter(Matchers.refEq(this.httpServletRequest),Matchers.refEq(this.httpServletResponse));
 
 	}
 
 	@Test
 	public void testDoFilterWithContextInfoNotInRequestParamsAndNotInSessionAttributeButInCookie() throws Exception{
 		final String contextPath = "/contextPath";
-		Mockito.when(httpServletRequest.getRequestURI()).thenReturn(contextPath);
-		Mockito.when(httpServletRequest.getSession()).thenReturn(httpSession);
+		Mockito.when(this.httpServletRequest.getRequestURI()).thenReturn(contextPath);
+		Mockito.when(this.httpServletRequest.getSession()).thenReturn(this.httpSession);
 
-		Cookie[] requestCookies = new Cookie[3];
-		requestCookies[0] = this.getCookie(ContextConstants.PARAM_LOGGED_IN_USER_ID, "11", contextPath);
-		requestCookies[1] = this.getCookie(ContextConstants.PARAM_SELECTED_PROJECT_ID, "12", contextPath);
-		requestCookies[2] = this.getCookie(ContextConstants.PARAM_AUTH_TOKEN, "AuthenticationToken", contextPath);
+		final Cookie[] requestCookies = new Cookie[3];
+		requestCookies[0] = this.getCookie(ContextConstants.PARAM_LOGGED_IN_USER_ID, "11", contextPath, false);
+		requestCookies[1] = this.getCookie(ContextConstants.PARAM_SELECTED_PROJECT_ID, "12", contextPath, false);
+		requestCookies[2] = this.getCookie(ContextConstants.PARAM_AUTH_TOKEN, "AuthenticationToken", contextPath, false);
 
-		Mockito.when(httpServletRequest.getCookies()).thenReturn(requestCookies);
+		Mockito.when(this.httpServletRequest.getCookies()).thenReturn(requestCookies);
 
-		contextFilter.doFilter(httpServletRequest, httpServletResponse, filterChain);
+		this.contextFilter.doFilter(this.httpServletRequest, this.httpServletResponse, this.filterChain);
 
-		ContextInfo expectedContextInfo = new ContextInfo(11, 12L, "AuthenticationToken");
-		Mockito.verify(httpSession).setAttribute(Matchers.eq(ContextConstants.SESSION_ATTR_CONTEXT_INFO), Matchers.refEq(expectedContextInfo));
-		Mockito.verify(filterChain).doFilter(Matchers.refEq(httpServletRequest),Matchers.refEq(httpServletResponse));
+		final ContextInfo expectedContextInfo = new ContextInfo(11, 12L, "AuthenticationToken");
+		Mockito.verify(this.httpSession).setAttribute(Matchers.eq(ContextConstants.SESSION_ATTR_CONTEXT_INFO), Matchers.refEq(expectedContextInfo));
+		Mockito.verify(this.filterChain).doFilter(Matchers.refEq(this.httpServletRequest),Matchers.refEq(this.httpServletResponse));
 
 	}
 
 	@Test
 	public void testDoFilterWithContextInfoNotInRequestParamsAndNotInSessionAttributeAndNotInCookie() throws Exception{
 		final String contextPath = "/contextPath";
-		Mockito.when(httpServletRequest.getRequestURI()).thenReturn(contextPath);
+		Mockito.when(this.httpServletRequest.getRequestURI()).thenReturn(contextPath);
 
-		Cookie[] requestCookies = null;
-		Mockito.when(httpServletRequest.getCookies()).thenReturn(requestCookies);
+		final Cookie[] requestCookies = null;
+		Mockito.when(this.httpServletRequest.getCookies()).thenReturn(requestCookies);
 
-		contextFilter.doFilter(httpServletRequest, httpServletResponse, filterChain);
+		this.contextFilter.doFilter(this.httpServletRequest, this.httpServletResponse, this.filterChain);
 
-		Mockito.verify(httpSession, Mockito.never()).setAttribute(Matchers.eq(ContextConstants.SESSION_ATTR_CONTEXT_INFO), Matchers.anyObject());
-		Mockito.verify(filterChain).doFilter(Matchers.refEq(httpServletRequest),Matchers.refEq(httpServletResponse));
+		Mockito.verify(this.httpSession, Mockito.never()).setAttribute(Matchers.eq(ContextConstants.SESSION_ATTR_CONTEXT_INFO), Matchers.anyObject());
+		Mockito.verify(this.filterChain).doFilter(Matchers.refEq(this.httpServletRequest),Matchers.refEq(this.httpServletResponse));
 
 	}
 
 	@Test
 	public void testDoFilterWithContextInfoNotInRequestParamButInSessionAttribute() throws Exception{
 		final String contextPath = "/contextPath";
-		Mockito.when(httpServletRequest.getRequestURI()).thenReturn(contextPath);
+		Mockito.when(this.httpServletRequest.getRequestURI()).thenReturn(contextPath);
 
-		ContextInfo sessionContextInfo = new ContextInfo(11, 12L, "AuthenticationToken");
+		final ContextInfo sessionContextInfo = new ContextInfo(11, 12L, "AuthenticationToken");
 
-		contextFilter.doFilter(httpServletRequest, httpServletResponse, filterChain);
-		Mockito.verify(httpSession, Mockito.never()).setAttribute(Matchers.eq(ContextConstants.SESSION_ATTR_CONTEXT_INFO), Matchers.anyObject());
-		Mockito.verify(filterChain).doFilter(Matchers.refEq(httpServletRequest),Matchers.refEq(httpServletResponse));
+		this.contextFilter.doFilter(this.httpServletRequest, this.httpServletResponse, this.filterChain);
+		Mockito.verify(this.httpSession, Mockito.never()).setAttribute(Matchers.eq(ContextConstants.SESSION_ATTR_CONTEXT_INFO), Matchers.anyObject());
+		Mockito.verify(this.filterChain).doFilter(Matchers.refEq(this.httpServletRequest),Matchers.refEq(this.httpServletResponse));
 
 	}
 
 	@Test
 	public void testDoFilterWithStaticResource() throws Exception{
 		final String contextPath = "/static";
-		Mockito.when(httpServletRequest.getRequestURI()).thenReturn(contextPath);
+		Mockito.when(this.httpServletRequest.getRequestURI()).thenReturn(contextPath);
 
-		contextFilter.doFilter(httpServletRequest, httpServletResponse, filterChain);
-		Mockito.verify(filterChain).doFilter(Matchers.refEq(httpServletRequest),Matchers.refEq(httpServletResponse));
+		this.contextFilter.doFilter(this.httpServletRequest, this.httpServletResponse, this.filterChain);
+		Mockito.verify(this.filterChain).doFilter(Matchers.refEq(this.httpServletRequest),Matchers.refEq(this.httpServletResponse));
 	}
 
 
-	private Cookie getCookie(String cookieName, String cookieValue , String cookiePath){
-		Cookie cookie = new Cookie(cookieName , cookieValue);
+	private Cookie getCookie(final String cookieName, final String cookieValue, final String cookiePath, final boolean isSecure){
+		final Cookie cookie = new Cookie(cookieName , cookieValue);
 		cookie.setPath(cookiePath);
+		cookie.setHttpOnly(true);
+		cookie.setSecure(isSecure);
 
 		return cookie;
 	}
