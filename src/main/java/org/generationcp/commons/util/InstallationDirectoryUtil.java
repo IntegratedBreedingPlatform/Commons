@@ -1,5 +1,9 @@
 package org.generationcp.commons.util;
 
+import org.generationcp.middleware.pojos.workbench.CropType;
+import org.generationcp.middleware.pojos.workbench.Project;
+import org.generationcp.middleware.pojos.workbench.ToolName;
+
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.FileSystems;
@@ -8,21 +12,17 @@ import java.nio.file.Path;
 import java.util.Collections;
 import java.util.List;
 
-import org.generationcp.middleware.pojos.workbench.CropType;
-import org.generationcp.middleware.pojos.workbench.Project;
-import org.generationcp.middleware.pojos.workbench.ToolName;
-
 public class InstallationDirectoryUtil {
 	
 	public static final String WORKSPACE_DIR = "workspace";
 	public static final String INPUT = "input";
 	public static final String OUTPUT = "output";
 	public static final String TEMP = "temp";
-	
-	public void createWorkspaceDirectoriesForProject(final Project project) {
+
+	public void createWorkspaceDirectoriesForProject(final String cropName, final String projectName) {
 
 		// create the directory for the project
-		final File projectDir = this.getFileForWorkspaceProjectDirectory(project);
+		final File projectDir = this.getFileForWorkspaceProjectDirectory(cropName, projectName);
 		if (projectDir.exists()) {
 			return;
 		}
@@ -40,17 +40,8 @@ public class InstallationDirectoryUtil {
 		}
 	}
 
-	private File getFileForWorkspaceProjectDirectory(final Project project) {
-		return this.getFileForWorkspaceProjectDirectory(project, project.getProjectName());
-	}
-	
-	private File getFileForWorkspaceProjectDirectory(final Project project, final String projectName) {
-		return new File(this.buildWorkspaceCropDirectoryPath(project), projectName);
-	}
-
-	private String buildWorkspaceCropDirectoryPath(final Project project) {
-		final String cropName = project.getCropType().getCropName();
-		return this.buildWorkspaceCropDirectoryPath(cropName);
+	private File getFileForWorkspaceProjectDirectory(final String cropName, final String projectName) {
+		return new File(this.buildWorkspaceCropDirectoryPath(cropName), projectName);
 	}
 	
 	private String buildWorkspaceCropDirectoryPath(final String cropName) {
@@ -58,13 +49,13 @@ public class InstallationDirectoryUtil {
 	}
 
 	public void renameOldWorkspaceDirectory(final String oldProjectName, final Project project) {
-		final File oldDir = this.getFileForWorkspaceProjectDirectory(project, oldProjectName);
+		final File oldDir = this.getFileForWorkspaceProjectDirectory(project.getCropType().getCropName(), oldProjectName);
 
 		// Rename old project name folder if found, otherwise create folder for latest project name
 		if (oldDir.exists()) {
-			oldDir.renameTo(this.getFileForWorkspaceProjectDirectory(project));
+			oldDir.renameTo(this.getFileForWorkspaceProjectDirectory(project.getCropType().getCropName(), project.getProjectName()));
 		} else {
-			this.createWorkspaceDirectoriesForProject(project);
+			this.createWorkspaceDirectoriesForProject(project.getCropType().getCropName(), project.getProjectName());
 		}
 	}
 	
@@ -76,7 +67,7 @@ public class InstallationDirectoryUtil {
 			this.recursiveFileDelete(cropDirectory);
 		}
 		for (final Project project : projects) {
-			this.createWorkspaceDirectoriesForProject(project);
+			this.createWorkspaceDirectoriesForProject(project.getCropType().getCropName(), project.getProjectName());
 		}
 	}
 
@@ -116,11 +107,11 @@ public class InstallationDirectoryUtil {
 	}
 	
 	protected File getToolDirectoryForProject(final Project project, final ToolName tool) {
-		final File projectDir = this.getFileForWorkspaceProjectDirectory(project);
+		final File projectDir = this.getFileForWorkspaceProjectDirectory(project.getCropType().getCropName(), project.getProjectName());
 		return new File(projectDir, tool.getName());
 	}
-	
-	public void recursiveFileDelete(File file) {
+
+	public void recursiveFileDelete(final File file) {
         //to end the recursive loop
         if (!file.exists()){
         	return;
@@ -128,7 +119,7 @@ public class InstallationDirectoryUtil {
          
         //if directory, go inside and call recursively
         if (file.isDirectory()) {
-            for (File f : file.listFiles()) {
+			for (final File f : file.listFiles()) {
                 //call recursively
                 recursiveFileDelete(f);
             }
@@ -136,6 +127,5 @@ public class InstallationDirectoryUtil {
         //call delete to delete files and empty directory
         file.delete();
     }
-
 
 }
