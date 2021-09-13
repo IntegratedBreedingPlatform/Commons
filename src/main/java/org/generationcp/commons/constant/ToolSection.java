@@ -7,7 +7,7 @@ package org.generationcp.commons.constant;
 public enum ToolSection {
 	// Jasper Reports
 	//TODO evaluate if we will continue supporting this custom reports
-	FBK_CROSS_IMPORT, FB_LBL_PRINT_CUSTOM_REPORT, FB_NURSE_MGR_CUSTOM_REPORT, FB_TRIAL_MGR_CUSTOM_REPORT, BM_LIST_MGR_CUSTOM_REPORT,
+	FBK_CROSS_IMPORT,
 	
 	// Label printing presets
 	INVENTORY_LABEL_PRINTING_PRESET, PLANTING_LABEL_PRINTING_PRESET, DATASET_LABEL_PRINTING_PRESET
