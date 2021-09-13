@@ -32,6 +32,7 @@ public class ContextFilter implements Filter {
 		final HttpServletRequest request = (HttpServletRequest) servletRequest;
 		final HttpServletResponse response = (HttpServletResponse) servletResponse;
 		response.setHeader("x-frame-options", "SAMEORIGIN");
+		response.setHeader("Referrer-Policy", "strict-origin-when-cross-origin");
 
 		if (!ContextUtil.isStaticResourceRequest(request.getRequestURI())) {
 			final ContextInfo requestContextInfo = ContextUtil.getContextInfoFromRequest(request);
