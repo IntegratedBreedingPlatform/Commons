@@ -49,6 +49,7 @@ public class HTTPRequestAwareServletFilter implements Filter {
 		resp.setHeader("x-frame-options", "SAMEORIGIN");
 		resp.setHeader("X-Content-Type-Options", "nosniff");
 		resp.setHeader("Referrer-Policy", "strict-origin-when-cross-origin");
+		resp.setHeader("Feature-Policy", "self");
 
 		String requestUri =
 				String.format("%s:%s%s?%s", req.getServerName(), req.getServerPort(), req.getRequestURI(), req.getQueryString());
