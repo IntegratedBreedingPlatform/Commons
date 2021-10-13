@@ -35,7 +35,7 @@ public class ContextFilter implements Filter {
 		response.setHeader("X-Content-Type-Options", "nosniff");
 		response.setHeader("Referrer-Policy", "strict-origin-when-cross-origin");
 		response.setHeader("Feature-Policy", "self");
-		response.setHeader("Content-Security-Policy", "default-src 'self'; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline';");
+		response.setHeader("Content-Security-Policy", "default-src 'self' 'unsafe-inline';");
 
 		if (!ContextUtil.isStaticResourceRequest(request.getRequestURI())) {
 			final ContextInfo requestContextInfo = ContextUtil.getContextInfoFromRequest(request);
