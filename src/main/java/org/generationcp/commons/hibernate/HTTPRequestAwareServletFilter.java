@@ -33,10 +33,10 @@ import org.slf4j.LoggerFactory;
  */
 public class HTTPRequestAwareServletFilter implements Filter {
 
-	private final static Logger LOG = LoggerFactory.getLogger(HTTPRequestAwareServletFilter.class);
+	private static final Logger LOG = LoggerFactory.getLogger(HTTPRequestAwareServletFilter.class);
 
 	@Override
-	public void init(FilterConfig filterConfig) throws ServletException {
+	public void init(final FilterConfig filterConfig) throws ServletException {
 		// NOOP
 	}
 
@@ -44,15 +44,15 @@ public class HTTPRequestAwareServletFilter implements Filter {
 	public void doFilter(final ServletRequest servletRequest, final ServletResponse servletResponse, final FilterChain filterChain) throws IOException,
 			ServletException {
 
-		HttpServletRequest req = (HttpServletRequest) servletRequest;
-		HttpServletResponse resp = (HttpServletResponse) servletResponse;
+		final HttpServletRequest req = (HttpServletRequest) servletRequest;
+		final HttpServletResponse resp = (HttpServletResponse) servletResponse;
 		resp.setHeader("x-frame-options", "SAMEORIGIN");
 		resp.setHeader("X-Content-Type-Options", "nosniff");
 		resp.setHeader("Referrer-Policy", "strict-origin-when-cross-origin");
 		resp.setHeader("Feature-Policy", "self");
 		resp.setHeader("Content-Security-Policy", "default-src 'self'");
 
-		String requestUri =
+		final String requestUri =
 				String.format("%s:%s%s?%s", req.getServerName(), req.getServerPort(), req.getRequestURI(), req.getQueryString());
 
 		if (!ContextUtil.isStaticResourceRequest(req.getRequestURI())) {
