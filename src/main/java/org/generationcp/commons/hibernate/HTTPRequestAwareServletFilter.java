@@ -38,8 +38,7 @@ public class HTTPRequestAwareServletFilter implements Filter {
 		+ "img-src 'self' html-online.com; "
 		+ "object-src 'none'; "
 		+ "script-src 'self' 'unsafe-inline' 'unsafe-eval'; "
-		+ "style-src 'self' 'unsafe-inline'; "
-		+ "base-uri 'none'; ";
+		+ "style-src 'self' 'unsafe-inline'; ";
 
 	@Override
 	public void init(final FilterConfig filterConfig) throws ServletException {
