@@ -34,6 +34,12 @@ import org.slf4j.LoggerFactory;
 public class HTTPRequestAwareServletFilter implements Filter {
 
 	private static final Logger LOG = LoggerFactory.getLogger(HTTPRequestAwareServletFilter.class);
+	public static final String CSP_CONFIG = "default-src 'self'; "
+		+ "img-src 'self' html-online.com; "
+		+ "object-src 'none'; "
+		+ "script-src 'self' 'unsafe-inline' 'unsafe-eval'; "
+		+ "style-src 'self' 'unsafe-inline'; "
+		+ "base-uri 'none'; ";
 
 	@Override
 	public void init(final FilterConfig filterConfig) throws ServletException {
@@ -50,7 +56,7 @@ public class HTTPRequestAwareServletFilter implements Filter {
 		resp.setHeader("X-Content-Type-Options", "nosniff");
 		resp.setHeader("Referrer-Policy", "strict-origin-when-cross-origin");
 		resp.setHeader("Feature-Policy", "self");
-		resp.setHeader("Content-Security-Policy", "default-src 'self' 'unsafe-inline';");
+		resp.setHeader("Content-Security-Policy", CSP_CONFIG);
 
 		final String requestUri =
 				String.format("%s:%s%s?%s", req.getServerName(), req.getServerPort(), req.getRequestURI(), req.getQueryString());

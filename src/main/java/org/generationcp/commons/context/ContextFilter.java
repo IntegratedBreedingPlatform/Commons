@@ -1,6 +1,7 @@
 
 package org.generationcp.commons.context;
 
+import org.generationcp.commons.hibernate.HTTPRequestAwareServletFilter;
 import org.generationcp.commons.util.ContextUtil;
 import org.generationcp.commons.util.WorkbenchAppPathResolver;
 import org.springframework.web.util.WebUtils;
@@ -35,7 +36,7 @@ public class ContextFilter implements Filter {
 		response.setHeader("X-Content-Type-Options", "nosniff");
 		response.setHeader("Referrer-Policy", "strict-origin-when-cross-origin");
 		response.setHeader("Feature-Policy", "self");
-		response.setHeader("Content-Security-Policy", "default-src 'self' 'unsafe-inline';");
+		response.setHeader("Content-Security-Policy", HTTPRequestAwareServletFilter.CSP_CONFIG);
 
 		if (!ContextUtil.isStaticResourceRequest(request.getRequestURI())) {
 			final ContextInfo requestContextInfo = ContextUtil.getContextInfoFromRequest(request);
