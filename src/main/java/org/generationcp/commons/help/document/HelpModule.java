@@ -59,7 +59,10 @@ public enum HelpModule {
 
 	// Navigation bar
 	NAVIGATION_BAR_ABOUT_BMS("navigation.bar.about.bms"),
-	NAVIGATION_BAR_ASK_FOR_SUPPORT("navigation.bar.ask.for.support");
+	NAVIGATION_BAR_ASK_FOR_SUPPORT("navigation.bar.ask.for.support"),
+
+	// Germplasm Lists
+	GERMPLASM_LIST("germplasm.list");
 
 	/* This is the variable name from the property file helplinks.properties */
 	private String propertyName;
