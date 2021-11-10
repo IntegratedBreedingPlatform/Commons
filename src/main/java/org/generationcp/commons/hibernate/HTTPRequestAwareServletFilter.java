@@ -34,12 +34,12 @@ import org.slf4j.LoggerFactory;
 public class HTTPRequestAwareServletFilter implements Filter {
 
 	private static final Logger LOG = LoggerFactory.getLogger(HTTPRequestAwareServletFilter.class);
-	public static final String CSP_CONFIG = "default-src 'self'; "
-		+ "img-src 'self' data: https:; "
-		+ "connect-src 'self' https:; "
-		+ "object-src 'none'; "
-		+ "script-src 'self' 'unsafe-inline' 'unsafe-eval'; "
-		+ "style-src 'self' 'unsafe-inline'; ";
+	public static final String CSP_CONFIG = "default-src 'self' https://surveyhero.com; "
+			+ "img-src 'self' data: https:; "
+			+ "connect-src 'self' https:; "
+			+ "object-src 'none'; "
+			+ "script-src 'self' https://embed-cdn.surveyhero.com 'unsafe-inline' 'unsafe-eval'; "
+			+ "style-src 'self' https://embed-cdn.surveyhero.com 'unsafe-inline'; ";
 
 	@Override
 	public void init(final FilterConfig filterConfig) throws ServletException {
