@@ -36,6 +36,7 @@ public class HTTPRequestAwareServletFilter implements Filter {
 	private static final Logger LOG = LoggerFactory.getLogger(HTTPRequestAwareServletFilter.class);
 	public static final String CSP_CONFIG = "default-src 'self'; "
 		+ "img-src 'self' data: https:; "
+		+ "frame-src 'self' blob:; "
 		+ "connect-src 'self' https:; "
 		+ "object-src 'none'; "
 		+ "script-src 'self' 'unsafe-inline' 'unsafe-eval'; "
