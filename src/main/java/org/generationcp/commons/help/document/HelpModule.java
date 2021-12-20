@@ -10,6 +10,8 @@ public enum HelpModule {
 	MANAGE_LIST("manage.list"), 
 	DESIGN_CROSSES("design.crosses"),
 	MANAGE_GERMPLASM("manage.germplasm"),
+	MANAGE_GERMPLASM_IMPORT("manage.germplasm.import"),
+	MANAGE_GERMPLASM_IMPORT_UPDATES("manage.germplasm.import.updates"),
 
 	// ManageStudies
 	MANAGE_STUDIES("manage.studies"),
