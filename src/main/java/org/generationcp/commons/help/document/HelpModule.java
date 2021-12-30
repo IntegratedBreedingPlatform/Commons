@@ -66,7 +66,10 @@ public enum HelpModule {
 	NAVIGATION_BAR_ASK_FOR_SUPPORT("navigation.bar.ask.for.support"),
 
 	// Germplasm Lists
-	GERMPLASM_LIST("germplasm.list");
+	GERMPLASM_LIST("germplasm.list"),
+
+	// Manage Program Settings
+	MANAGE_PROGRAM_SETTINGS("manage.program.settings");
 
 	/* This is the variable name from the property file helplinks.properties */
 	private String propertyName;
