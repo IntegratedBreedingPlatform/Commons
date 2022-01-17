@@ -379,6 +379,7 @@ public class TreeViewUtil {
 		treeNode.setDescription(germplasmList.getDescription());
 		treeNode.setOwnerId((germplasmList.getUserId() != null) ? String.valueOf(germplasmList.getUserId()) : null);
 		treeNode.setOwner(germplasmList.getCreatedBy());
+		treeNode.setIsLocked(germplasmList.isLockedList());
 		treeNode.setType(TreeViewUtil.getTypeString(germplasmList.getType(), listTypes));
 
 		return treeNode;
