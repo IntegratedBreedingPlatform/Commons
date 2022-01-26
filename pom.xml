@@ -3,7 +3,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>org.generationcp</groupId>
 	<artifactId>ibpcommons</artifactId>
-        <version>19.4.3</version>
+        <version>19.5</version>
 	<packaging>jar</packaging>
 	<name>Commons</name>
 
