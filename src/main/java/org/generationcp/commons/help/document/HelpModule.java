@@ -24,11 +24,15 @@ public enum HelpModule {
 	MANAGE_STUDIES_EXPERIMENTAL_DESIGN("manage.studies.experimental.design"),
 	MANAGE_STUDIES_SUB_OBSERVATIONS("manage.studies.sub.observations"),
 	MANAGE_STUDIES_FIELDMAP_GEOREFERENCE("manage.studies.fieldmap.georeference"),
-	MANAGE_STUDIES_CREATE_PLANTING_LABELS("manage.studies.create.planting.labels"),
-	MAKE_LABELS("make.labels"),
-	MAKE_FIELD_MAPS("make.field.maps"), 
+	MAKE_FIELD_MAPS("make.field.maps"),
 	MANAGE_LOCATIONS("manage.locations"),
 	MANAGE_BREEDING_METHODS("manage.breeding.methods"),
+
+	// Label Printing
+	LABEL_PRINTING_GERMPLASM_MANAGER("label.printing.germplasm.manager"),
+	LABEL_PRINTING_GERMPLASM_LIST_MANAGER("label.printing.germplasm.list.manager"),
+	LABEL_PRINTING_STUDY_MANAGER("label.printing.study.manager"),
+	LABEL_PRINTING_INVENTORY_MANAGER("label.printing.inventory.manager"),
 	
 	// Information Management
 	IMPORT_GERMPLASM("import.germplasm"), 
@@ -66,7 +70,12 @@ public enum HelpModule {
 	NAVIGATION_BAR_ASK_FOR_SUPPORT("navigation.bar.ask.for.support"),
 
 	// Germplasm Lists
-	GERMPLASM_LIST("germplasm.list");
+	GERMPLASM_LIST("germplasm.list"),
+	GERMPLASM_LIST_IMPORT("germplasm.list.import"),
+	GERMPLASM_LIST_IMPORT_UPDATE("germplasm.list.import.update"),
+
+	// Graphical Queries;
+	GRAPHICAL_QUERIES("graphical.queries");
 
 	/* This is the variable name from the property file helplinks.properties */
 	private String propertyName;
