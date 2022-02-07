@@ -263,12 +263,6 @@ public class GermplasmExportServiceImplTest {
 			rowCount++;
 		}
 	}
-	
-	@Test
-	public void testGenerateExcelFileForSingleSheet() throws IOException {
-		this.germplasmExportService.generateExcelFileForSingleSheet(this.exportRows, this.columnsHeaders,
-				GermplasmExportTestHelper.TEST_FILE_NAME, this.sheetName);
-	}
 
 	@Test
 	public void testGenerateGermplasmListExcelFile() throws GermplasmListExporterException {

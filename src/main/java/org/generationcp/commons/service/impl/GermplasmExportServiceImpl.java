@@ -111,23 +111,6 @@ public class GermplasmExportServiceImpl implements GermplasmExportService {
 		return values.toArray(new String[values.size()]);
 	}
 
-	@Override
-	public FileOutputStream generateExcelFileForSingleSheet(final List<ExportRow> exportRows,
-			final List<ExportColumnHeader> exportColumnHeaders, final String filename, final String sheetName) throws IOException {
-
-		final HSSFWorkbook wb = this.createWorkbookForSingleSheet(exportRows, exportColumnHeaders, sheetName);
-
-		try {
-			// write the excel file
-			final FileOutputStream fileOutputStream = new FileOutputStream(filename);
-			wb.write(fileOutputStream);
-			fileOutputStream.close();
-			return fileOutputStream;
-		} catch (final IOException ex) {
-			throw new IOException("Error with writing to: " + filename, ex);
-		}
-	}
-
 	protected HSSFWorkbook createWorkbookForSingleSheet(final List<ExportRow> exportRows,
 			final List<ExportColumnHeader> exportColumnHeaders, final String sheetName) {
 		final HSSFWorkbook wb = new HSSFWorkbook();
