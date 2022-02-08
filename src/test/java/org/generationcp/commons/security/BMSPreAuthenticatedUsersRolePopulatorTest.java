@@ -1,11 +1,9 @@
 
 package org.generationcp.commons.security;
 
-import org.apache.commons.codec.binary.Base64;
 import org.generationcp.commons.context.ContextConstants;
 import org.generationcp.middleware.domain.workbench.PermissionDto;
 import org.generationcp.middleware.exceptions.MiddlewareQueryException;
-import org.generationcp.middleware.manager.Operation;
 import org.generationcp.middleware.manager.api.WorkbenchDataManager;
 import org.generationcp.middleware.pojos.workbench.CropType;
 import org.generationcp.middleware.pojos.workbench.Project;
@@ -14,8 +12,10 @@ import org.generationcp.middleware.service.api.permission.PermissionService;
 import org.generationcp.middleware.service.api.user.UserService;
 import org.junit.Assert;
 import org.junit.Before;
+import org.junit.FixMethodOrder;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.junit.runners.MethodSorters;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
@@ -32,9 +32,6 @@ import java.util.List;
 public class BMSPreAuthenticatedUsersRolePopulatorTest {
 
 	private static final String TEST_USER = "testUser";
-	// FIXME IBP-2843
-	private static final String AUTH_TOKEN = Base64.encodeBase64URLSafeString(BMSPreAuthenticatedUsersRolePopulatorTest.TEST_USER
-			.getBytes());
 	private static final String PERMISSION_NAME = "ADMIN";
 
 	private static final int USER_ID = 1;
@@ -65,20 +62,24 @@ public class BMSPreAuthenticatedUsersRolePopulatorTest {
 	public void setup() {
 		Mockito.when(this.request.getParameter(ContextConstants.PARAM_LOGGED_IN_USER_ID)).thenReturn(String.valueOf(USER_ID));
 		Mockito.when(this.request.getParameter(ContextConstants.PARAM_SELECTED_PROJECT_ID)).thenReturn(String.valueOf(SELECTED_PROJECT_ID));
-		Mockito.when(this.request.getParameter(ContextConstants.PARAM_AUTH_TOKEN)).thenReturn(AUTH_TOKEN);
+	}
+
+	@Test(expected = AuthenticationServiceException.class)
+	public void test1LoadUserDataAccessError() {
+		Mockito.when(this.userService.getUserById(Mockito.anyInt()))
+			.thenThrow(new MiddlewareQueryException("Boom!"));
+		this.rolesPopulator.buildDetails(this.request);
 	}
 
 	@Test
-	public void testBuildDetails() {
+	public void test2BuildDetails() {
 		try {
-			final List<WorkbenchUser> matchingUsers = new ArrayList<>();
 			final WorkbenchUser testUserWorkbench = new WorkbenchUser();
 			testUserWorkbench.setName(BMSPreAuthenticatedUsersRolePopulatorTest.TEST_USER);
 			testUserWorkbench.setUserid(USER_ID);
 			testUserWorkbench.setPassword("password");
-			matchingUsers.add(testUserWorkbench);
-			Mockito.when(this.userService.getUserByName(BMSPreAuthenticatedUsersRolePopulatorTest.TEST_USER, 0, 1, Operation.EQUAL))
-					.thenReturn(matchingUsers);
+			Mockito.when(this.userService.getUserById(USER_ID))
+				.thenReturn(testUserWorkbench);
 
 			final Project project = new Project();
 			project.setProjectId(SELECTED_PROJECT_ID);
@@ -93,22 +94,15 @@ public class BMSPreAuthenticatedUsersRolePopulatorTest {
 			Mockito.when(this.permissionService.getPermissions(USER_ID, CROP_NAME, PROGRAM_ID)).thenReturn(permissions);
 
 			final PreAuthenticatedGrantedAuthoritiesWebAuthenticationDetails roleDetails =
-					(PreAuthenticatedGrantedAuthoritiesWebAuthenticationDetails) this.rolesPopulator.buildDetails(this.request);
+				(PreAuthenticatedGrantedAuthoritiesWebAuthenticationDetails) this.rolesPopulator.buildDetails(this.request);
 
 			Assert.assertEquals(permissions.size(), roleDetails.getGrantedAuthorities().size());
 			Assert.assertEquals(SecurityUtil.ROLE_PREFIX + permission.getName(), roleDetails.getGrantedAuthorities().get(0)
-					.getAuthority());
+				.getAuthority());
 
 		} catch (MiddlewareQueryException e) {
 			Assert.fail("Unexpected exception: " + e.getMessage());
 		}
-	}
-
-	@Test(expected = AuthenticationServiceException.class)
-	public void testLoadUserDataAccessError() throws MiddlewareQueryException {
-		Mockito.when(this.userService.getUserByName(BMSPreAuthenticatedUsersRolePopulatorTest.TEST_USER, 0, 1, Operation.EQUAL))
-				.thenThrow(new MiddlewareQueryException("Boom!"));
-		this.rolesPopulator.buildDetails(this.request);
 	}
 
 }

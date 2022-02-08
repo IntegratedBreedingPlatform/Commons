@@ -12,22 +12,16 @@ public class ContextInfo {
 
 	private final Integer loggedInUserId;
 	private final Long selectedProjectId;
-	private final String authToken;
 	private final boolean showReleaseNotes;
 
-	public ContextInfo(Integer userId, Long selectedProjectId, String authToken, boolean showReleaseNotes) {
+	public ContextInfo(final Integer userId, final Long selectedProjectId, final boolean showReleaseNotes) {
 		this.loggedInUserId = userId;
 		this.selectedProjectId = selectedProjectId;
-		this.authToken = authToken;
 		this.showReleaseNotes = showReleaseNotes;
 	}
 
-	public ContextInfo(final Integer loggedInUserId, final Long selectedProjectId, final String authToken) {
-		this(loggedInUserId, selectedProjectId, authToken, false);
-	}
-
-	public ContextInfo(Integer userId, Long selectedProjectId) {
-		this(userId, selectedProjectId, "", false);
+	public ContextInfo(final Integer loggedInUserId, final Long selectedProjectId) {
+		this(loggedInUserId, selectedProjectId, false);
 	}
 
 	public Integer getLoggedInUserId() {
@@ -38,33 +32,28 @@ public class ContextInfo {
 		return this.selectedProjectId;
 	}
 
-	public String getAuthToken() {
-		return this.authToken;
-	}
-
 	public boolean shouldShowReleaseNotes() {
 		return this.showReleaseNotes;
 	}
 
 	@Override
-	public boolean equals(Object o) {
+	public boolean equals(final Object o) {
 
 		if (o == this) {
 			return true;
 		}
-		
+
 		if (!(o instanceof ContextInfo)) {
 			return false;
 		}
-		
+
 		final ContextInfo other = (ContextInfo) o;
 		return Objects.equals(this.loggedInUserId, other.loggedInUserId)
-				&& Objects.equals(this.loggedInUserId, other.selectedProjectId)
-				&& Objects.equals(this.authToken, other.authToken);
+			&& Objects.equals(this.loggedInUserId, other.selectedProjectId);
 	}
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(this.loggedInUserId, this.loggedInUserId, this.authToken);
+		return Objects.hash(this.loggedInUserId, this.loggedInUserId);
 	}
 }

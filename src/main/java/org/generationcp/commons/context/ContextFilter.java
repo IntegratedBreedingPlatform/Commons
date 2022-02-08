@@ -49,12 +49,8 @@ public class ContextFilter implements Filter {
 				final Cookie loggedInUserCookie = new Cookie(ContextConstants.PARAM_LOGGED_IN_USER_ID, requestContextInfo.getLoggedInUserId().toString());
 				final Cookie selectedProjectIdCookie = new Cookie(ContextConstants.PARAM_SELECTED_PROJECT_ID, requestContextInfo.getSelectedProjectId()
 						.toString());
-				final Cookie authTokenCookie = new Cookie(ContextConstants.PARAM_AUTH_TOKEN, requestContextInfo.getAuthToken());
-
-
 				this.configureAndAddCookie(loggedInUserCookie, contextPath, isHttps, response);
 				this.configureAndAddCookie(selectedProjectIdCookie, contextPath, isHttps, response);
-				this.configureAndAddCookie(authTokenCookie, contextPath, isHttps, response);
 			}
 
 			else {
@@ -65,10 +61,9 @@ public class ContextFilter implements Filter {
 					// restore session attribure from cookies
 					final Cookie userIdCookie = WebUtils.getCookie(request, ContextConstants.PARAM_LOGGED_IN_USER_ID);
 					final Cookie selectedProjectIdCookie = WebUtils.getCookie(request, ContextConstants.PARAM_SELECTED_PROJECT_ID);
-					final Cookie authTokenCookie = WebUtils.getCookie(request, ContextConstants.PARAM_AUTH_TOKEN);
 					if (userIdCookie != null && selectedProjectIdCookie != null) {
 						ContextUtil.setContextInfo(request, Integer.valueOf(userIdCookie.getValue()),
-								Long.valueOf(selectedProjectIdCookie.getValue()), authTokenCookie.getValue());
+								Long.valueOf(selectedProjectIdCookie.getValue()));
 					}
 				}
 			}

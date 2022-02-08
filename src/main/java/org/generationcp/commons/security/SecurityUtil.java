@@ -58,8 +58,4 @@ public abstract class SecurityUtil {
 	public static String getEncodedToken() {
 		return Base64.encodeBase64URLSafeString(SecurityUtil.getLoggedInUserName().getBytes());
 	}
-
-	public static String decodeToken(String token) {
-		return new String(Base64.decodeBase64(token));
-	}
 }
