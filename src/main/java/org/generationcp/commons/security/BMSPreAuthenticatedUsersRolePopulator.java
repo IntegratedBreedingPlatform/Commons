@@ -45,15 +45,15 @@ public class BMSPreAuthenticatedUsersRolePopulator implements AuthenticationDeta
 
 			public PreAuthenticatedGrantedAuthoritiesWebAuthenticationDetails doInTransaction(final TransactionStatus status) {
 				try {
-					final WorkbenchUser user = ContextUtil.getCurrentWorkbenchUser(userService, request);
+					final WorkbenchUser user =
+						ContextUtil.getCurrentWorkbenchUser(BMSPreAuthenticatedUsersRolePopulator.this.userService, request);
 
 					final ContextInfo requestContextInfo = ContextUtil.getContextInfoFromRequest(request);
-					final Project project = workbenchDataManager.getProjectById(requestContextInfo.getSelectedProjectId());
-
-					// FIXME Authentication IBP-2843
+					final Project project = BMSPreAuthenticatedUsersRolePopulator.this.workbenchDataManager.getProjectById(
+						requestContextInfo.getSelectedProjectId());
 
 					final Collection<? extends GrantedAuthority> authorities =
-						SecurityUtil.getAuthorities(permissionService.getPermissions( //
+						SecurityUtil.getAuthorities(BMSPreAuthenticatedUsersRolePopulator.this.permissionService.getPermissions( //
 							user.getUserid(), //
 							project.getCropType().getCropName(), //
 							requestContextInfo.getSelectedProjectId().intValue()));

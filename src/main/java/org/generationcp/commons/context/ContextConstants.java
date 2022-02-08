@@ -7,6 +7,4 @@ public class ContextConstants {
 
 	public static final String PARAM_LOGGED_IN_USER_ID = "loggedInUserId";
 	public static final String PARAM_SELECTED_PROJECT_ID = "selectedProjectId";
-
-	public static final String PARAM_AUTH_TOKEN = "authToken";
 }
