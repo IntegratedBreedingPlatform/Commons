@@ -22,7 +22,6 @@ import org.mockito.MockitoAnnotations;
 
 public class ContextUtilTest {
 
-	private static final String SAMPLE_AUTH_TOKEN = "RANDOM_TOKEN";
 	private static Project testProject;
 	@Mock
 	private WorkbenchDataManager workbenchDataManager;
@@ -46,7 +45,6 @@ public class ContextUtilTest {
 
 		Mockito.when(this.request.getParameter(ContextConstants.PARAM_LOGGED_IN_USER_ID)).thenReturn("1");
 		Mockito.when(this.request.getParameter(ContextConstants.PARAM_SELECTED_PROJECT_ID)).thenReturn("1");
-		Mockito.when(this.request.getParameter(ContextConstants.PARAM_AUTH_TOKEN)).thenReturn(ContextUtilTest.SAMPLE_AUTH_TOKEN);
 	}
 
 	@Test
@@ -117,25 +115,20 @@ public class ContextUtilTest {
 	@Test
 	public void testGetContextInfoFromRequest() throws Exception {
 		Mockito.when(this.session.getAttribute(ContextConstants.SESSION_ATTR_CONTEXT_INFO)).thenReturn(
-				new ContextInfo(1, 1L, ContextUtilTest.SAMPLE_AUTH_TOKEN));
+				new ContextInfo(1, 1L));
 		Mockito.when(this.request.getSession(Matchers.anyBoolean())).thenReturn(this.session);
 		Mockito.when(this.workbenchDataManager.getProjectById(1L)).thenReturn(ContextUtilTest.testProject);
 
 		Assert.assertNotNull(ContextUtil.getContextInfoFromRequest(this.request));
 		Assert.assertEquals(Integer.valueOf(1), ContextUtil.getContextInfoFromRequest(this.request).getLoggedInUserId());
 		Assert.assertEquals(Long.valueOf(1L), ContextUtil.getContextInfoFromRequest(this.request).getSelectedProjectId());
-		Assert.assertEquals(ContextUtilTest.SAMPLE_AUTH_TOKEN, ContextUtil.getContextInfoFromRequest(this.request).getAuthToken());
 	}
 
 	@Test
 	public void testGetCurrentWorkbenchUsername() throws Exception {
 		Mockito.when(this.session.getAttribute(ContextConstants.SESSION_ATTR_CONTEXT_INFO)).thenReturn(
-				new ContextInfo(1, 1L, ContextUtilTest.SAMPLE_AUTH_TOKEN));
+				new ContextInfo(1, 1L));
 		Mockito.when(this.request.getSession(Matchers.anyBoolean())).thenReturn(this.session);
 		Mockito.when(this.workbenchDataManager.getProjectById(1L)).thenReturn(ContextUtilTest.testProject);
-
-		Assert.assertEquals(SecurityUtil.decodeToken(ContextUtilTest.SAMPLE_AUTH_TOKEN),
-				ContextUtil.getCurrentWorkbenchUsername(this.userService, this.request));
-
 	}
 }
