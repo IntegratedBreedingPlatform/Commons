@@ -75,7 +75,7 @@ public enum HelpModule {
 	GERMPLASM_LIST_IMPORT_UPDATE("germplasm.list.import.update"),
 
 	// Graphical Queries;
-	GRAPHICAL_QUERIES("graphical.queries");
+	GRAPHICAL_QUERIES("graphical.queries"),
 
 	// Manage Program Settings
 	MANAGE_PROGRAM_SETTINGS("manage.program.settings");
