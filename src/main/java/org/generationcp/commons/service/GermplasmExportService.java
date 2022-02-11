@@ -26,8 +26,5 @@ public interface GermplasmExportService {
 	File generateCSVFile(List<ExportRow> exportRows, List<ExportColumnHeader> exportColumnHeaders,
 		String fileNameFullPath, boolean includeHeader) throws IOException;
 
-	FileOutputStream generateExcelFileForSingleSheet(List<ExportRow> exportRows,
-		List<ExportColumnHeader> exportColumnHeaders, String filename, String sheetName) throws IOException;
-
 	FileOutputStream generateGermplasmListExcelFile(GermplasmListExportInputValues input) throws GermplasmListExporterException;
 }
