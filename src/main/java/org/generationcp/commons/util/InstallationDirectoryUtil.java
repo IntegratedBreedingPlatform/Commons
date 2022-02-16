@@ -1,14 +1,10 @@
 package org.generationcp.commons.util;
 
-import org.generationcp.middleware.pojos.workbench.CropType;
 import org.generationcp.middleware.pojos.workbench.Project;
 import org.generationcp.middleware.pojos.workbench.ToolName;
 
 import java.io.File;
 import java.io.IOException;
-import java.nio.file.FileSystems;
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.util.Collections;
 import java.util.List;
 
@@ -48,26 +44,14 @@ public class InstallationDirectoryUtil {
 		return InstallationDirectoryUtil.WORKSPACE_DIR + File.separator + cropName;
 	}
 
-	public void renameOldWorkspaceDirectory(final String oldProjectName, final Project project) {
-		final File oldDir = this.getFileForWorkspaceProjectDirectory(project.getCropType().getCropName(), oldProjectName);
+	public void renameOldWorkspaceDirectory(final String oldProjectName, final String cropName, final String newProjectName) {
+		final File oldDir = this.getFileForWorkspaceProjectDirectory(cropName, oldProjectName);
 
 		// Rename old project name folder if found, otherwise create folder for latest project name
 		if (oldDir.exists()) {
-			oldDir.renameTo(this.getFileForWorkspaceProjectDirectory(project.getCropType().getCropName(), project.getProjectName()));
+			oldDir.renameTo(this.getFileForWorkspaceProjectDirectory(cropName, newProjectName));
 		} else {
-			this.createWorkspaceDirectoriesForProject(project.getCropType().getCropName(), project.getProjectName());
-		}
-	}
-	
-	public void resetWorkspaceDirectoryForCrop(final CropType cropType, final List<Project> projects) {
-		final String cropName = cropType.getCropName();
-		final File cropDirectory = new File(this.buildWorkspaceCropDirectoryPath(cropName));
-		// Delete all contents of given crop directory and recreate folders for each of the project names
-		if (cropDirectory.exists()) {
-			this.recursiveFileDelete(cropDirectory);
-		}
-		for (final Project project : projects) {
-			this.createWorkspaceDirectoriesForProject(project.getCropType().getCropName(), project.getProjectName());
+			this.createWorkspaceDirectoriesForProject(cropName, newProjectName);
 		}
 	}
 
@@ -94,16 +78,6 @@ public class InstallationDirectoryUtil {
 			finalFilename = TEMP;
 		}
 		return File.createTempFile(finalFilename, extension, outputDir).getAbsolutePath();
-	}
-	
-	public String getFileInTemporaryDirectoryForProjectAndTool(final String fileName, final Project project, final ToolName tool)
-			throws IOException {
-		final File toolDirectory = this.getToolDirectoryForProject(project, tool);
-		if (!toolDirectory.exists()) {
-			toolDirectory.mkdirs();
-		}
-		final Path tempDirectory = Files.createTempDirectory(FileSystems.getDefault().getPath(toolDirectory.getPath()), InstallationDirectoryUtil.OUTPUT);
-		return new File(tempDirectory.toFile(), fileName).getAbsolutePath();
 	}
 	
 	protected File getToolDirectoryForProject(final Project project, final ToolName tool) {

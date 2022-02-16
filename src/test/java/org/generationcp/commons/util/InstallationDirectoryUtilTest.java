@@ -1,7 +1,6 @@
 package org.generationcp.commons.util;
 
 import org.generationcp.middleware.data.initializer.ProjectTestDataInitializer;
-import org.generationcp.middleware.pojos.workbench.CropType;
 import org.generationcp.middleware.pojos.workbench.Project;
 import org.generationcp.middleware.pojos.workbench.ToolName;
 import org.junit.Assert;
@@ -10,8 +9,6 @@ import org.junit.Test;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.Arrays;
-import java.util.List;
 import java.util.Random;
 
 public class InstallationDirectoryUtilTest {
@@ -84,7 +81,7 @@ public class InstallationDirectoryUtilTest {
 		oldProjectWorkspaceDirectory.mkdirs();
 		Assert.assertTrue(oldProjectWorkspaceDirectory.exists());
 		
-		this.installationDirUtil.renameOldWorkspaceDirectory(oldProjectName, this.project);
+		this.installationDirUtil.renameOldWorkspaceDirectory(oldProjectName, this.project.getCropType().getCropName(), this.project.getProjectName());
 		// Folder for old project name should not exist anymore since it was renamed
 		Assert.assertFalse(oldProjectWorkspaceDirectory.exists());
 		final File newProjectWorkspaceDirectory = new File(
@@ -101,7 +98,7 @@ public class InstallationDirectoryUtilTest {
 				new File(InstallationDirectoryUtil.WORKSPACE_DIR + File.separator + project.getCropType().getCropName(), oldProjectName);
 		Assert.assertFalse(oldProjectWorkspaceDirectory.exists());
 		
-		this.installationDirUtil.renameOldWorkspaceDirectory(oldProjectName, project);
+		this.installationDirUtil.renameOldWorkspaceDirectory(oldProjectName, project.getCropType().getCropName(), project.getProjectName());
 		// Folder for old project name should still not exist
 		Assert.assertFalse(oldProjectWorkspaceDirectory.exists());
 		final File newProjectWorkspaceDirectory = new File(
@@ -109,72 +106,6 @@ public class InstallationDirectoryUtilTest {
 		// Folder for new project name should now exist
 		Assert.assertTrue(newProjectWorkspaceDirectory.exists());
 		this.verifyProjectFolderSubdirectories(newProjectWorkspaceDirectory, true);
-	}
-	
-	@Test
-	public void testResetWorkspaceDirectoryForCropWhenOldProgramFoldersExists() {
-		// Create crop workspace directory with existing programs
-		final String oldProjectName1 = "Old Maize Program 1";
-		final Project project = ProjectTestDataInitializer.createProject();
-		final CropType cropType = project.getCropType();
-		final File oldProjectWorkspaceDirectory1 =
-				new File(InstallationDirectoryUtil.WORKSPACE_DIR + File.separator + cropType.getCropName(), oldProjectName1);
-		oldProjectWorkspaceDirectory1.mkdirs();
-		Assert.assertTrue(oldProjectWorkspaceDirectory1.exists());
-		final String oldProjectName2 = "Old Maize Program 2";
-		final File oldProjectWorkspaceDirectory2 =
-				new File(InstallationDirectoryUtil.WORKSPACE_DIR + File.separator + cropType.getCropName(), oldProjectName2);
-		oldProjectWorkspaceDirectory2.mkdirs();
-		Assert.assertTrue(oldProjectWorkspaceDirectory2.exists());
-		
-		project.setProjectName(DUMMY_PROJECT_NAME + "1");
-		final Project project2 = ProjectTestDataInitializer.createProject();
-		project2.setProjectName(DUMMY_PROJECT_NAME + "2");
-		final Project project3 = ProjectTestDataInitializer.createProject();
-		project3.setProjectName(DUMMY_PROJECT_NAME + "3");
-		final List<Project> projects = Arrays.asList(project, project2, project3);
-		this.installationDirUtil.resetWorkspaceDirectoryForCrop(cropType, projects);
-		
-		// Folder for old project names should not exist anymore and folders for new programs should have been generated
-		Assert.assertFalse(oldProjectWorkspaceDirectory1.exists());
-		Assert.assertFalse(oldProjectWorkspaceDirectory2.exists());
-		final File cropWorkspaceDirectory = new File(InstallationDirectoryUtil.WORKSPACE_DIR + File.separator + cropType.getCropName());
-		Assert.assertTrue(cropWorkspaceDirectory.exists());
-		Assert.assertEquals(projects.size(), cropWorkspaceDirectory.list().length);
-		for (final Project newProject : projects) {
-			final File newProjectWorkspaceDirectory = new File(
-					InstallationDirectoryUtil.WORKSPACE_DIR + File.separator + cropType.getCropName(), newProject.getProjectName());
-			Assert.assertTrue(newProjectWorkspaceDirectory.exists());
-			this.verifyProjectFolderSubdirectories(newProjectWorkspaceDirectory, true);
-		}
-		
-	}
-	
-	@Test
-	public void testResetWorkspaceDirectoryForCropWhenCropDirectoryDoesNotExist() {
-		// Create crop workspace directory with existing programs
-		final Project project = ProjectTestDataInitializer.createProject();
-		final CropType cropType = project.getCropType();
-		final File cropWorkspaceDirectory = new File(InstallationDirectoryUtil.WORKSPACE_DIR + File.separator + cropType.getCropName());
-		Assert.assertFalse(cropWorkspaceDirectory.exists());
-		
-		project.setProjectName(DUMMY_PROJECT_NAME + "1");
-		final Project project2 = ProjectTestDataInitializer.createProject();
-		project2.setProjectName(DUMMY_PROJECT_NAME + "2");
-		final Project project3 = ProjectTestDataInitializer.createProject();
-		project3.setProjectName(DUMMY_PROJECT_NAME + "3");
-		final List<Project> projects = Arrays.asList(project, project2, project3);
-		this.installationDirUtil.resetWorkspaceDirectoryForCrop(cropType, projects);
-		
-		// Folders for crop and new programs should have been generated
-		Assert.assertTrue(cropWorkspaceDirectory.exists());
-		for (final Project newProject : projects) {
-			final File newProjectWorkspaceDirectory = new File(
-					InstallationDirectoryUtil.WORKSPACE_DIR + File.separator + cropType.getCropName(), newProject.getProjectName());
-			Assert.assertTrue(newProjectWorkspaceDirectory.exists());
-			this.verifyProjectFolderSubdirectories(newProjectWorkspaceDirectory, true);
-		}
-		
 	}
 
 	private void deleteTestInstallationDirectory() {
@@ -250,26 +181,5 @@ public class InstallationDirectoryUtilTest {
 			Assert.fail("There should be no exception thrown");
 		}
 	}
-	
-	@Test
-	public void testGetFileInTemporaryDirectoryForProjectAndTool() {
-		try {
-			final String tempFilePath = this.installationDirUtil.getFileInTemporaryDirectoryForProjectAndTool(TEMP_FILENAME +  XLS_EXTENSION, project, ToolName.STUDY_BROWSER);
-			final File toolDirectoryFile = this.installationDirUtil.getToolDirectoryForProject(project, ToolName.STUDY_BROWSER);
-			Assert.assertTrue(toolDirectoryFile.exists());
-			Assert.assertEquals(1, toolDirectoryFile.list().length);
-			String outputTempDirectory = InstallationDirectoryUtil.OUTPUT;
-			for (final File file : toolDirectoryFile.listFiles()) {
-				if (file.getName().startsWith("output") && file.isDirectory()) {
-					outputTempDirectory = file.getName();
-				}
-			}
-			Assert.assertEquals(toolDirectoryFile.getAbsolutePath() + File.separator + outputTempDirectory + File.separator + TEMP_FILENAME
-					+ XLS_EXTENSION, tempFilePath);
-		} catch (final IOException e) {
-			Assert.fail("There should be no exception thrown");
-		}
-	}
-	
 
 }

@@ -33,7 +33,7 @@ public enum HelpModule {
 	LABEL_PRINTING_GERMPLASM_LIST_MANAGER("label.printing.germplasm.list.manager"),
 	LABEL_PRINTING_STUDY_MANAGER("label.printing.study.manager"),
 	LABEL_PRINTING_INVENTORY_MANAGER("label.printing.inventory.manager"),
-	
+
 	// Information Management
 	IMPORT_GERMPLASM("import.germplasm"), 
 	MANAGE_GENOTYPING_DATA("manage.genotyping.data"), 
@@ -75,7 +75,10 @@ public enum HelpModule {
 	GERMPLASM_LIST_IMPORT_UPDATE("germplasm.list.import.update"),
 
 	// Graphical Queries;
-	GRAPHICAL_QUERIES("graphical.queries");
+	GRAPHICAL_QUERIES("graphical.queries"),
+
+	// Manage Program Settings
+	MANAGE_PROGRAM_SETTINGS("manage.program.settings");
 
 	/* This is the variable name from the property file helplinks.properties */
 	private String propertyName;
