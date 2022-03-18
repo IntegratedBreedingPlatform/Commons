@@ -29,9 +29,6 @@ public class HelpButtonClickListenerTest {
 	private Properties helpProperties;
 
 	@Mock
-	private Properties workbenchProperties;
-
-	@Mock
 	private ClickEvent event;
 	@Mock
 	private Component component;
@@ -51,7 +48,6 @@ public class HelpButtonClickListenerTest {
 		Mockito.when(this.component.getWindow()).thenReturn(this.window);
 		Mockito.when(this.component.getParent()).thenReturn(this.parentComponent);
 		Mockito.when(this.parentComponent.getWindow()).thenReturn(this.window);
-		Mockito.when(this.workbenchProperties.getProperty("workbench.version", "")).thenReturn("4.0.0");
 	}
 
 	@Test
