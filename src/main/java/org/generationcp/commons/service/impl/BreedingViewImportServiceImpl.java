@@ -2,6 +2,7 @@ package org.generationcp.commons.service.impl;
 
 import com.rits.cloning.Cloner;
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.collections.MapUtils;
 import org.apache.commons.collections.map.MultiKeyMap;
 import org.apache.commons.lang3.StringUtils;
 import org.generationcp.commons.breedingview.parsing.MeansCSV;
@@ -46,6 +47,7 @@ import org.generationcp.middleware.operation.builder.StandardVariableBuilder;
 import org.generationcp.middleware.operation.transformer.etl.StandardVariableTransformer;
 import org.generationcp.middleware.pojos.dms.DmsProject;
 import org.generationcp.middleware.pojos.dms.PhenotypeOutlier;
+import org.generationcp.middleware.pojos.dms.ProjectProperty;
 import org.generationcp.middleware.pojos.oms.CVTerm;
 import org.generationcp.middleware.service.api.analysis.SiteAnalysisService;
 import org.generationcp.middleware.service.impl.analysis.SummaryStatisticsImportRequest;
@@ -58,7 +60,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
@@ -505,8 +506,14 @@ public class BreedingViewImportServiceImpl implements BreedingViewImportService 
 			// Breeding View
 			final SummaryStatsCSV summaryStatsCSV = new SummaryStatsCSV(file, this.localNameToAliasMap);
 
+			final Map<String, String> aliasToVariableNameMap =
+				this.daoFactory.getProjectPropertyDAO().getByProjectId(this.getPlotDataSet(studyId).getId()).stream().collect(
+					Collectors.toMap(ProjectProperty::getAlias, pp -> pp.getVariable().getName()));
+
 			final List<Integer> traitVariableIds =
-				this.daoFactory.getCvTermDao().getByNamesAndCvId(new HashSet<>(summaryStatsCSV.getTraits()), CvId.VARIABLES).stream()
+				this.daoFactory.getCvTermDao()
+					.getByNamesAndCvId(summaryStatsCSV.getTraits().stream().map(aliasToVariableNameMap::get).collect(
+						Collectors.toSet()), CvId.VARIABLES).stream()
 					.map(CVTerm::getCvTermId).collect(
 						Collectors.toList());
 
@@ -516,7 +523,9 @@ public class BreedingViewImportServiceImpl implements BreedingViewImportService 
 			analysisVariablesImportRequest.setVariableType(VariableType.ANALYSIS_SUMMARY.getName());
 
 			// Create analysis summary variables
-			final MultiKeyMap analysisSummaryVariablesMap = this.ontologyVariableService.createAnalysisVariables(analysisVariablesImportRequest);
+			final MultiKeyMap analysisSummaryVariablesMap =
+				this.ontologyVariableService.createAnalysisVariables(analysisVariablesImportRequest,
+					MapUtils.invertMap(aliasToVariableNameMap));
 
 			final Map<String, String> environmentTrialInstanceMap =
 				this.createEnvironmentTrialInstanceMap(summaryStatsCSV.getData().keySet(), studyId, summaryStatsCSV.getTrialHeader());
