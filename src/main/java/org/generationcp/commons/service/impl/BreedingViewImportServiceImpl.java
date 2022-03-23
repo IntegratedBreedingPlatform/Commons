@@ -2,6 +2,7 @@ package org.generationcp.commons.service.impl;
 
 import com.rits.cloning.Cloner;
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.collections.map.MultiKeyMap;
 import org.apache.commons.lang3.StringUtils;
 import org.generationcp.commons.breedingview.parsing.MeansCSV;
 import org.generationcp.commons.breedingview.parsing.OutlierCSV;
@@ -515,13 +516,13 @@ public class BreedingViewImportServiceImpl implements BreedingViewImportService 
 			analysisVariablesImportRequest.setVariableType(VariableType.ANALYSIS_SUMMARY.getName());
 
 			// Create analysis summary variables
-			this.ontologyVariableService.createAnalysisVariables(analysisVariablesImportRequest);
+			final MultiKeyMap analysisSummaryVariablesMap = this.ontologyVariableService.createAnalysisVariables(analysisVariablesImportRequest);
 
 			final Map<String, String> environmentTrialInstanceMap =
 				this.createEnvironmentTrialInstanceMap(summaryStatsCSV.getData().keySet(), studyId, summaryStatsCSV.getTrialHeader());
 
 			final SummaryStatisticsImportRequest summaryStatisticsImportRequest =
-				this.createSummaryStatisticsImportRequest(summaryStatsCSV, environmentTrialInstanceMap);
+				this.createSummaryStatisticsImportRequest(summaryStatsCSV, environmentTrialInstanceMap, analysisSummaryVariablesMap);
 
 			// Get the means dataset if it exists.
 			final List<DmsProject> datasets = this.daoFactory.getDmsProjectDAO()
@@ -540,8 +541,13 @@ public class BreedingViewImportServiceImpl implements BreedingViewImportService 
 
 	}
 
-	private SummaryStatisticsImportRequest createSummaryStatisticsImportRequest(final SummaryStatsCSV summaryStatsCSV,
-		final Map<String, String> environmentTrialInstanceMap) throws IOException {
+	protected SummaryStatisticsImportRequest createSummaryStatisticsImportRequest(final SummaryStatsCSV summaryStatsCSV,
+		final Map<String, String> environmentTrialInstanceMap, final MultiKeyMap variablesMap) throws IOException {
+
+		final Map<Integer, String> analysisSummaryVariableNamesMap =
+			this.daoFactory.getCvTermDao().getByIds(new ArrayList<Integer>(variablesMap.values())).stream()
+				.collect(Collectors.toMap(CVTerm::getCvTermId, CVTerm::getName));
+
 		final SummaryStatisticsImportRequest summaryStatisticsImportRequest = new SummaryStatisticsImportRequest();
 		final List<SummaryStatisticsImportRequest.SummaryData> data = new ArrayList<>();
 		for (final Entry<String, String> mapEntry : environmentTrialInstanceMap.entrySet()) {
@@ -550,10 +556,11 @@ public class BreedingViewImportServiceImpl implements BreedingViewImportService 
 			final Map<String, Double> values = new HashMap<>();
 			for (final String analysisSummaryMethodName : summaryStatsCSV.getSummaryHeaders()) {
 				for (final Entry<String, List<String>> traitSummaryStat : summaryStatsCSV.getData().get(mapEntry.getKey()).entrySet()) {
+					final String variableName =
+						analysisSummaryVariableNamesMap.get(variablesMap.get(traitSummaryStat.getKey(), analysisSummaryMethodName));
 					final String summaryStatValue =
 						traitSummaryStat.getValue().get(summaryStatsCSV.getSummaryHeaders().indexOf(analysisSummaryMethodName));
-					values.put(traitSummaryStat.getKey() + "_" + analysisSummaryMethodName,
-						StringUtils.isEmpty(summaryStatValue) ? null : Double.valueOf(summaryStatValue));
+					values.put(variableName, StringUtils.isEmpty(summaryStatValue) ? null : Double.valueOf(summaryStatValue));
 				}
 			}
 			summaryData.setValues(values);
