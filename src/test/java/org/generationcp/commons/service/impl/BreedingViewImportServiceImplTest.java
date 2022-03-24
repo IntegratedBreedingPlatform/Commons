@@ -798,42 +798,6 @@ public class BreedingViewImportServiceImplTest {
 	}
 
 	@Test
-	public void testGenerateAnalysisVariableScaleNameForMeans() {
-
-		final String variableName = BreedingViewImportServiceImplTest.ACDTOL_E_1TO5 + MeansCSV.MEANS_SUFFIX;
-
-		final String scaleName = this.bvImportService.generateAnalysisVariableScaleName(variableName);
-		Assert.assertEquals("Average AcdTol_E_1to5 Score", scaleName);
-	}
-
-	@Test
-	public void testGenerateAnalysisVariableScaleNameForCV() {
-
-		final String variableName = BreedingViewImportServiceImplTest.ACDTOL_E_1TO5 + BreedingViewImportServiceImpl.CV_SUFFIX;
-
-		final String scaleName = this.bvImportService.generateAnalysisVariableScaleName(variableName);
-		Assert.assertEquals("Percent SE/Mean for AcdTol_E_1to5", scaleName);
-	}
-
-	@Test
-	public void testGenerateAnalysisVariableScaleNameForHeritability() {
-
-		final String variableName = BreedingViewImportServiceImplTest.ACDTOL_E_1TO5 + BreedingViewImportServiceImpl.HERITABILITY_SUFFIX;
-
-		final String scaleName = this.bvImportService.generateAnalysisVariableScaleName(variableName);
-		Assert.assertEquals("Ratio genetic variance/phenotypic variance for variable AcdTol_E_1to5", scaleName);
-	}
-
-	@Test
-	public void testGenerateAnalysisVariableScaleNameForPValue() {
-
-		final String variableName = BreedingViewImportServiceImplTest.ACDTOL_E_1TO5 + BreedingViewImportServiceImpl.PVALUE_SUFFIX;
-
-		final String scaleName = this.bvImportService.generateAnalysisVariableScaleName(variableName);
-		Assert.assertEquals("Significance of test for mean differences for variable AcdTol_E_1to5", scaleName);
-	}
-
-	@Test
 	public void testGetAnalysisVariableScaleIdWhereScaleIsNumeric() {
 		final Scale scale = OntologyScaleTestDataInitializer.createScale();
 		final int scaleId = this.bvImportService.getAnalysisVariableScaleId(scale.getId(), scale.getName());
@@ -852,8 +816,6 @@ public class BreedingViewImportServiceImplTest {
 
 		this.bvImportService.getAnalysisVariableScaleId(scale.getId(), variableName);
 		Mockito.verify(this.scaleDataManager).getScaleById(scale.getId(), true);
-		Mockito.verify(this.ontologyDataManager)
-			.findTermByName(this.bvImportService.generateAnalysisVariableScaleName(variableName), CvId.SCALES);
 		Mockito.verify(this.scaleDataManager).addScale(ArgumentMatchers.<Scale>any());
 	}
 
@@ -864,12 +826,11 @@ public class BreedingViewImportServiceImplTest {
 
 		final Scale scale = OntologyScaleTestDataInitializer.createScaleWithNameAndDataType(variableName, DataType.CATEGORICAL_VARIABLE);
 		Mockito.when(this.scaleDataManager.getScaleById(ArgumentMatchers.anyInt(), ArgumentMatchers.anyBoolean())).thenReturn(scale);
-		final String scaleName = this.bvImportService.generateAnalysisVariableScaleName(variableName);
-		Mockito.when(this.ontologyDataManager.findTermByName(scaleName, CvId.SCALES)).thenReturn(scale);
+		Mockito.when(this.ontologyDataManager.findTermByName(scale.getName(), CvId.SCALES)).thenReturn(scale);
 
 		this.bvImportService.getAnalysisVariableScaleId(scale.getId(), variableName);
 		Mockito.verify(this.scaleDataManager).getScaleById(scale.getId(), true);
-		Mockito.verify(this.ontologyDataManager).findTermByName(scaleName, CvId.SCALES);
+		Mockito.verify(this.ontologyDataManager).findTermByName(scale.getName(), CvId.SCALES);
 		Mockito.verify(this.scaleDataManager, Mockito.never()).addScale(ArgumentMatchers.<Scale>any());
 	}
 

@@ -8,7 +8,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.generationcp.commons.breedingview.parsing.MeansCSV;
 import org.generationcp.commons.breedingview.parsing.OutlierCSV;
 import org.generationcp.commons.breedingview.parsing.SummaryStatsCSV;
-import org.generationcp.commons.constant.CommonMessage;
 import org.generationcp.commons.exceptions.BreedingViewImportException;
 import org.generationcp.commons.service.BreedingViewImportService;
 import org.generationcp.commons.spring.util.ContextUtil;
@@ -64,7 +63,6 @@ import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Objects;
@@ -73,11 +71,6 @@ import java.util.stream.Collectors;
 
 public class BreedingViewImportServiceImpl implements BreedingViewImportService {
 
-	static final String PVALUE_SUFFIX = "_Pvalue";
-	static final String HERITABILITY_SUFFIX = "_Heritability";
-	static final String CV_SUFFIX = "_CV";
-	private static final String MEAN_SUFFIX = "_Mean";
-	private static final String MEAN_SED_SUFFIX = "_MeanSED";
 	private static final String REGEX_VALID_BREEDING_VIEW_CHARACTERS = "[^a-zA-Z0-9-_%']+";
 	private static final String LS_MEAN = "LS MEAN";
 
@@ -839,14 +832,13 @@ public class BreedingViewImportServiceImpl implements BreedingViewImportService 
 		// Create new scales for analysis variables if the original scale is
 		// categorical else retain the original scale
 		if (originalScale.getDataType().getId() == TermId.CATEGORICAL_VARIABLE.getId()) {
-			final String scaleName = this.generateAnalysisVariableScaleName(name);
-			final Term existingScale = this.ontologyDataManager.findTermByName(scaleName, CvId.SCALES);
+			final Term existingScale = this.ontologyDataManager.findTermByName(name, CvId.SCALES);
 			if (existingScale != null) {
 				return existingScale.getId();
 			} else {
 				final Scale scale = new Scale();
-				scale.setName(scaleName);
-				scale.setDefinition(scaleName);
+				scale.setName(name);
+				scale.setDefinition(name);
 				scale.setDataType(DataType.NUMERIC_VARIABLE);
 				this.scaleDataManager.addScale(scale);
 				return scale.getId();
@@ -854,23 +846,6 @@ public class BreedingViewImportServiceImpl implements BreedingViewImportService 
 		} else {
 			return scaleId;
 		}
-	}
-
-	String generateAnalysisVariableScaleName(final String name) {
-		final String variableName = name.substring(0, name.lastIndexOf('_'));
-		String scaleName = "";
-		if (name.endsWith(MeansCSV.MEANS_SUFFIX) || name.endsWith(BreedingViewImportServiceImpl.MEAN_SED_SUFFIX) || name
-			.endsWith(BreedingViewImportServiceImpl.MEAN_SUFFIX)) {
-			scaleName = this.messageSource.getMessage(CommonMessage.MEANS_SCALE_NAME.name(), new Object[] {variableName}, Locale.ENGLISH);
-		} else if (name.endsWith(BreedingViewImportServiceImpl.CV_SUFFIX)) {
-			scaleName = this.messageSource.getMessage(CommonMessage.CV_SCALE_NAME.name(), new Object[] {variableName}, Locale.ENGLISH);
-		} else if (name.endsWith(BreedingViewImportServiceImpl.HERITABILITY_SUFFIX)) {
-			scaleName = this.messageSource
-				.getMessage(CommonMessage.HERITABILITY_SCALE_NAME.name(), new Object[] {variableName}, Locale.ENGLISH);
-		} else if (name.endsWith(BreedingViewImportServiceImpl.PVALUE_SUFFIX)) {
-			scaleName = this.messageSource.getMessage(CommonMessage.PVALUE_SCALE_NAME.name(), new Object[] {variableName}, Locale.ENGLISH);
-		}
-		return scaleName;
 	}
 
 	/***
