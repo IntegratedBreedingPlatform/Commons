@@ -48,6 +48,7 @@ import org.generationcp.middleware.pojos.dms.DmsProject;
 import org.generationcp.middleware.pojos.dms.PhenotypeOutlier;
 import org.generationcp.middleware.pojos.dms.ProjectProperty;
 import org.generationcp.middleware.pojos.oms.CVTerm;
+import org.generationcp.middleware.pojos.workbench.CropType;
 import org.generationcp.middleware.service.api.analysis.SiteAnalysisService;
 import org.generationcp.middleware.service.impl.analysis.SummaryStatisticsImportRequest;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -529,12 +530,14 @@ public class BreedingViewImportServiceImpl implements BreedingViewImportService 
 			// Get the means dataset if it exists.
 			final List<DmsProject> datasets = this.daoFactory.getDmsProjectDAO()
 				.getDatasetsByTypeForStudy(Arrays.asList(studyId), DatasetTypeEnum.SUMMARY_STATISTICS_DATA.getId());
+			final CropType cropType = this.contextUtil.getProjectInContext().getCropType();
 			if (CollectionUtils.isEmpty(datasets)) {
 				// If the means dataset does not exist, create a new summary statistics dataset
-				this.siteAnalysisService.createSummaryStatisticsDataset(studyId, summaryStatisticsImportRequest);
+				this.siteAnalysisService.createSummaryStatisticsDataset(cropType.getCropName(), studyId, summaryStatisticsImportRequest);
 			} else {
 				// If it already exists, update the summary statistics dataset
-				this.siteAnalysisService.updateSummaryStatisticsDataset(datasets.get(0).getProjectId(), summaryStatisticsImportRequest);
+				this.siteAnalysisService.updateSummaryStatisticsDataset(cropType.getCropName(), datasets.get(0).getProjectId(),
+					summaryStatisticsImportRequest);
 			}
 
 		} catch (final Exception e) {

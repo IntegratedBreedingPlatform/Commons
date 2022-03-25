@@ -103,6 +103,7 @@ public class BreedingViewImportServiceImplTest {
 	private static final Integer LS_MEAN_ID = 16090;
 	public static final String LOCATION_NAME = "LOCATION_NAME";
 	public static final String TRIAL_INSTANCE = "TRIAL_INSTANCE";
+	public static final String CROP_NAME = "maize";
 
 	private final List<DMSVariableType> factorVariableTypes = new ArrayList<>();
 	private final List<DMSVariableType> variateVariableTypes = new ArrayList<>();
@@ -211,7 +212,7 @@ public class BreedingViewImportServiceImplTest {
 
 		final Project workbenchProject = new Project();
 		this.crop = new CropType();
-		this.crop.setCropName("maize");
+		this.crop.setCropName(CROP_NAME);
 		workbenchProject.setCropType(this.crop);
 		Mockito.doReturn(workbenchProject).when(this.contextUtil).getProjectInContext();
 	}
@@ -345,7 +346,8 @@ public class BreedingViewImportServiceImplTest {
 		this.bvImportService.importSummaryStatisticsData(file, STUDY_ID);
 
 		final ArgumentCaptor<SummaryStatisticsImportRequest> argumentCaptor = ArgumentCaptor.forClass(SummaryStatisticsImportRequest.class);
-		Mockito.verify(this.siteAnalysisService).createSummaryStatisticsDataset(ArgumentMatchers.eq(STUDY_ID), argumentCaptor.capture());
+		Mockito.verify(this.siteAnalysisService)
+			.createSummaryStatisticsDataset(ArgumentMatchers.eq(CROP_NAME), ArgumentMatchers.eq(STUDY_ID), argumentCaptor.capture());
 
 		final SummaryStatisticsImportRequest summaryStatisticsImportRequest = argumentCaptor.getValue();
 
@@ -395,7 +397,8 @@ public class BreedingViewImportServiceImplTest {
 
 		final ArgumentCaptor<SummaryStatisticsImportRequest> argumentCaptor = ArgumentCaptor.forClass(SummaryStatisticsImportRequest.class);
 		Mockito.verify(this.siteAnalysisService)
-			.updateSummaryStatisticsDataset(ArgumentMatchers.eq(existingSummaryStatisticsDataset.getProjectId()), argumentCaptor.capture());
+			.updateSummaryStatisticsDataset(ArgumentMatchers.eq(CROP_NAME),
+				ArgumentMatchers.eq(existingSummaryStatisticsDataset.getProjectId()), argumentCaptor.capture());
 
 		final SummaryStatisticsImportRequest summaryStatisticsImportRequest = argumentCaptor.getValue();
 
