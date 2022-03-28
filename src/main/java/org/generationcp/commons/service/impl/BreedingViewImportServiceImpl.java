@@ -1,13 +1,18 @@
 package org.generationcp.commons.service.impl;
 
 import com.rits.cloning.Cloner;
+import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.collections.MapUtils;
+import org.apache.commons.collections.map.MultiKeyMap;
+import org.apache.commons.lang3.StringUtils;
 import org.generationcp.commons.breedingview.parsing.MeansCSV;
 import org.generationcp.commons.breedingview.parsing.OutlierCSV;
 import org.generationcp.commons.breedingview.parsing.SummaryStatsCSV;
-import org.generationcp.commons.constant.CommonMessage;
 import org.generationcp.commons.exceptions.BreedingViewImportException;
 import org.generationcp.commons.service.BreedingViewImportService;
 import org.generationcp.commons.spring.util.ContextUtil;
+import org.generationcp.middleware.api.ontology.AnalysisVariablesImportRequest;
+import org.generationcp.middleware.api.ontology.OntologyVariableService;
 import org.generationcp.middleware.domain.dms.DMSVariableType;
 import org.generationcp.middleware.domain.dms.DataSet;
 import org.generationcp.middleware.domain.dms.DatasetReference;
@@ -26,7 +31,6 @@ import org.generationcp.middleware.domain.oms.CvId;
 import org.generationcp.middleware.domain.oms.Term;
 import org.generationcp.middleware.domain.oms.TermId;
 import org.generationcp.middleware.domain.ontology.DataType;
-import org.generationcp.middleware.domain.ontology.Method;
 import org.generationcp.middleware.domain.ontology.Scale;
 import org.generationcp.middleware.domain.ontology.VariableType;
 import org.generationcp.middleware.enumeration.DatasetTypeEnum;
@@ -41,7 +45,11 @@ import org.generationcp.middleware.operation.builder.StandardVariableBuilder;
 import org.generationcp.middleware.operation.transformer.etl.StandardVariableTransformer;
 import org.generationcp.middleware.pojos.dms.DmsProject;
 import org.generationcp.middleware.pojos.dms.PhenotypeOutlier;
+import org.generationcp.middleware.pojos.dms.ProjectProperty;
 import org.generationcp.middleware.pojos.oms.CVTerm;
+import org.generationcp.middleware.pojos.workbench.CropType;
+import org.generationcp.middleware.service.api.analysis.SiteAnalysisService;
+import org.generationcp.middleware.service.impl.analysis.SummaryStatisticsImportRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.support.ResourceBundleMessageSource;
 
@@ -55,19 +63,15 @@ import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 public class BreedingViewImportServiceImpl implements BreedingViewImportService {
 
-	static final String PVALUE_SUFFIX = "_Pvalue";
-	static final String HERITABILITY_SUFFIX = "_Heritability";
-	static final String CV_SUFFIX = "_CV";
-	private static final String MEAN_SUFFIX = "_Mean";
-	private static final String MEAN_SED_SUFFIX = "_MeanSED";
 	private static final String REGEX_VALID_BREEDING_VIEW_CHARACTERS = "[^a-zA-Z0-9-_%']+";
 	private static final String LS_MEAN = "LS MEAN";
 
@@ -100,6 +104,12 @@ public class BreedingViewImportServiceImpl implements BreedingViewImportService 
 
 	@Resource
 	private ContextUtil contextUtil;
+
+	@Resource
+	private SiteAnalysisService siteAnalysisService;
+
+	@Resource
+	private OntologyVariableService ontologyVariableService;
 
 	private Map<String, String> localNameToAliasMap = new HashMap<>();
 
@@ -224,8 +234,8 @@ public class BreedingViewImportServiceImpl implements BreedingViewImportService 
 
 				final String variableValue = traitsAndMeans.get(meansVariable).get(i).trim();
 				if (!variableValue.trim().isEmpty()) {
-					final Variable var = new Variable(meansDataSet.getVariableTypes().findByLocalName(meansVariable), variableValue);
-					list.add(var);
+					final Variable variable = new Variable(meansDataSet.getVariableTypes().findByLocalName(meansVariable), variableValue);
+					list.add(variable);
 				}
 
 			}
@@ -430,58 +440,6 @@ public class BreedingViewImportServiceImpl implements BreedingViewImportService 
 	}
 
 	/**
-	 * This method returns the map of method name to method id from the list of
-	 * method names in the database. If the method name does not exist, it is
-	 * created and returned from the database.
-	 *
-	 * @param methodNameList
-	 * @return
-	 */
-	private Map<String, Integer> findOrSaveMethodsIfNotExisting(final List<String> methodNameList) {
-		final Map<String, Integer> methodNameToIdMap = new HashMap<>();
-		for (final String methodName : methodNameList) {
-			final Integer methodId = this.findOrSaveMethod(methodName, methodName + "  (system generated method)");
-			methodNameToIdMap.put(methodName, methodId);
-		}
-		return methodNameToIdMap;
-	}
-
-	/**
-	 * This method finds or save the method from the database based from the
-	 * method name
-	 *
-	 * @param methodName
-	 * @param methodDefinition
-	 * @return method id
-	 */
-	private Integer findOrSaveMethod(final String methodName, final String methodDefinition) {
-		Integer methodId = null;
-		final CVTerm cvterm = this.daoFactory.getCvTermDao().getByNameAndCvId(methodName, CvId.METHODS.getId());
-		if (cvterm == null) {
-			methodId = this.saveMethod(methodName, methodDefinition);
-		} else {
-			methodId = cvterm.getCvTermId();
-		}
-		return methodId;
-	}
-
-	/**
-	 * This creates a Method instance, save it and return the newly-created
-	 * method id
-	 *
-	 * @param methodName
-	 * @param methodDefinition
-	 * @return method id
-	 */
-	private Integer saveMethod(final String methodName, final String methodDefinition) {
-		final Method method = new Method();
-		method.setName(methodName);
-		method.setDefinition(methodDefinition);
-		this.methodDataManager.addMethod(method);
-		return method.getId();
-	}
-
-	/**
 	 * This method checks if the ontology variable with given name exists
 	 *
 	 * @param variableName
@@ -519,46 +477,52 @@ public class BreedingViewImportServiceImpl implements BreedingViewImportService 
 		return variableInfo.getId();
 	}
 
-	/**
-	 * This method is used to import summary statistics generated by Breeding
-	 * View to trial dataset
-	 */
 	@Override
-	public void importSummaryStatsData(final File file, final int studyId) throws BreedingViewImportException {
-
+	public void importSummaryStatisticsData(final File file, final int studyId) throws BreedingViewImportException {
 		try {
-			final DataSet plotDataset = this.getPlotDataSet(studyId);
-			// Get the sanitized names to plot dataset variable names as means
-			// dataset will be based on this
-			this.generateNameToAliasMap(plotDataset);
-
 			// Get the summary statistics from the csv output file generated by
 			// Breeding View
 			final SummaryStatsCSV summaryStatsCSV = new SummaryStatsCSV(file, this.localNameToAliasMap);
 
-			final DmsProject study = this.studyDataManager.getProject(studyId);
-			final String programUUID = study.getProgramUUID();
-			final DataSet trialDataSet = this.getTrialDataSet(studyId);
+			final Map<String, String> aliasToVariableNameMap =
+				this.daoFactory.getProjectPropertyDAO().getByProjectId(this.getPlotDataSet(studyId).getId()).stream().collect(
+					Collectors.toMap(ProjectProperty::getAlias, pp -> pp.getVariable().getName()));
 
-			// Used in getting the new project properties
-			final VariableTypeList variableTypeListVariates = plotDataset.getVariableTypes().getVariates();
+			final List<Integer> traitVariableIds =
+				this.daoFactory.getCvTermDao()
+					.getByNamesAndCvId(summaryStatsCSV.getTraits().stream().map(aliasToVariableNameMap::get).collect(
+						Collectors.toSet()), CvId.VARIABLES).stream()
+					.map(CVTerm::getCvTermId).collect(
+						Collectors.toList());
 
-			// Create the summary statistics variable types
-			final VariableTypeList summaryStatsVariableTypeList =
-				this.createSummaryStatsVariableTypes(summaryStatsCSV, trialDataSet, variableTypeListVariates, programUUID);
+			final AnalysisVariablesImportRequest analysisVariablesImportRequest = new AnalysisVariablesImportRequest();
+			analysisVariablesImportRequest.setAnalysisMethodNames(summaryStatsCSV.getSummaryHeaders());
+			analysisVariablesImportRequest.setVariableIds(traitVariableIds);
+			analysisVariablesImportRequest.setVariableType(VariableType.ANALYSIS_SUMMARY.getName());
 
-			final Map<Integer, String> geolocationIdToEnvironmentMap =
-				this.createGeolocationIdEnvironmentMap(summaryStatsCSV.getData().keySet(), studyId, summaryStatsCSV.getTrialHeader());
-			final List<ExperimentValues> summaryStatsExperimentValuesList =
-				this.createSummaryStatsExperimentValuesList(trialDataSet, geolocationIdToEnvironmentMap, summaryStatsCSV);
+			// Create analysis summary variables
+			final MultiKeyMap analysisSummaryVariablesMap =
+				this.ontologyVariableService.createAnalysisVariables(analysisVariablesImportRequest,
+					MapUtils.invertMap(aliasToVariableNameMap));
 
-			// Save project properties and experiments
-			final DmsProject project = new DmsProject();
-			project.setProjectId(trialDataSet.getId());
-			project.setStudyType(study.getStudyType());
+			final Map<String, String> environmentTrialInstanceMap =
+				this.createEnvironmentTrialInstanceMap(summaryStatsCSV.getData().keySet(), studyId, summaryStatsCSV.getTrialHeader());
 
-			this.studyDataManager.saveTrialDatasetSummary(project, summaryStatsVariableTypeList, summaryStatsExperimentValuesList,
-				new ArrayList<>(geolocationIdToEnvironmentMap.keySet()));
+			final SummaryStatisticsImportRequest summaryStatisticsImportRequest =
+				this.createSummaryStatisticsImportRequest(summaryStatsCSV, environmentTrialInstanceMap, analysisSummaryVariablesMap);
+
+			// Get the summary statistics dataset if it exists.
+			final List<DmsProject> datasets = this.daoFactory.getDmsProjectDAO()
+				.getDatasetsByTypeForStudy(Arrays.asList(studyId), DatasetTypeEnum.SUMMARY_STATISTICS_DATA.getId());
+			final CropType cropType = this.contextUtil.getProjectInContext().getCropType();
+			if (CollectionUtils.isEmpty(datasets)) {
+				// If the summary statistics dataset does not exist, create a new dataset
+				this.siteAnalysisService.createSummaryStatisticsDataset(cropType.getCropName(), studyId, summaryStatisticsImportRequest);
+			} else {
+				// If it already exists, update the summary statistics dataset
+				this.siteAnalysisService.updateSummaryStatisticsDataset(cropType.getCropName(), datasets.get(0).getProjectId(),
+					summaryStatisticsImportRequest);
+			}
 
 		} catch (final Exception e) {
 			throw new BreedingViewImportException(e.getMessage(), e);
@@ -566,59 +530,42 @@ public class BreedingViewImportServiceImpl implements BreedingViewImportService 
 
 	}
 
-	/**
-	 * Create list ExperimentValues for each summary statistic method, for each
-	 * trait and environment analyzed with proper value coming from parsed
-	 * summary file from Breeding View
-	 *
-	 * @param trialDataSet                  - environment dataset of analyzed study
-	 * @param geolocationIdToEnvironmentMap - map of Trial Environment ID (nd_geolocation ID) to
-	 *                                      environment names
-	 * @param summaryCSV                    - summary headers and data from summary file from Breeding
-	 *                                      View
-	 * @return list of ExperimentValues generated from summary data
-	 * @throws IOException
-	 */
-	List<ExperimentValues> createSummaryStatsExperimentValuesList(
-		final DataSet trialDataSet,
-		final Map<Integer, String> geolocationIdToEnvironmentMap, final SummaryStatsCSV summaryCSV) throws IOException {
-		final List<String> summaryHeaders = summaryCSV.getSummaryHeaders();
-		final Map<String, Map<String, List<String>>> summaryStatsData = summaryCSV.getData();
-		final List<ExperimentValues> summaryStatsExperimentValuesList = new ArrayList<>();
+	protected SummaryStatisticsImportRequest createSummaryStatisticsImportRequest(final SummaryStatsCSV summaryStatsCSV,
+		final Map<String, String> environmentTrialInstanceMap, final MultiKeyMap variablesMap) throws IOException {
 
-		int counter = 0;
-		for (final String envFactorValue : geolocationIdToEnvironmentMap.values()) {
-			for (final String summaryStatName : summaryHeaders) {
-				for (final Entry<String, List<String>> traitSummaryStat : summaryStatsData.get(envFactorValue).entrySet()) {
+		final List<Integer> variableIds = new ArrayList<>(variablesMap.values());
+		final Map<Integer, String> analysisSummaryVariableNamesMap =
+			this.daoFactory.getCvTermDao().getByIds(variableIds).stream()
+				.collect(Collectors.toMap(CVTerm::getCvTermId, CVTerm::getName));
 
-					final VariableList variableList = new VariableList();
-					variableList.setVariables(new ArrayList<Variable>());
-					final ExperimentValues experimentValues = new ExperimentValues();
-					experimentValues.setVariableList(variableList);
-					experimentValues.setLocationId(Integer.valueOf(geolocationIdToEnvironmentMap.keySet().toArray()[counter].toString()));
-
-					final DMSVariableType summaryStatVariableType =
-						trialDataSet.findVariableTypeByLocalName(traitSummaryStat.getKey() + "_" + summaryStatName);
-
-					if (summaryStatVariableType != null) {
-						final String summaryStatValue = traitSummaryStat.getValue().get(summaryHeaders.indexOf(summaryStatName));
-						final Variable var = new Variable(summaryStatVariableType, summaryStatValue);
-						experimentValues.getVariableList().getVariables().add(var);
-						summaryStatsExperimentValuesList.add(experimentValues);
-					}
+		final SummaryStatisticsImportRequest summaryStatisticsImportRequest = new SummaryStatisticsImportRequest();
+		final List<SummaryStatisticsImportRequest.SummaryData> data = new ArrayList<>();
+		for (final Entry<String, String> mapEntry : environmentTrialInstanceMap.entrySet()) {
+			final SummaryStatisticsImportRequest.SummaryData summaryData = new SummaryStatisticsImportRequest.SummaryData();
+			summaryData.setEnvironmentNumber(Integer.valueOf(mapEntry.getValue()));
+			final Map<String, Double> values = new HashMap<>();
+			for (final String analysisSummaryMethodName : summaryStatsCSV.getSummaryHeaders()) {
+				for (final Entry<String, List<String>> traitSummaryStat : summaryStatsCSV.getData().get(mapEntry.getKey()).entrySet()) {
+					final String variableName =
+						analysisSummaryVariableNamesMap.get(variablesMap.get(traitSummaryStat.getKey(), analysisSummaryMethodName));
+					final String summaryStatValue =
+						traitSummaryStat.getValue().get(summaryStatsCSV.getSummaryHeaders().indexOf(analysisSummaryMethodName));
+					values.put(variableName, StringUtils.isEmpty(summaryStatValue) ? null : Double.valueOf(summaryStatValue));
 				}
 			}
-			counter++;
+			summaryData.setValues(values);
+			data.add(summaryData);
 		}
-		return summaryStatsExperimentValuesList;
+		summaryStatisticsImportRequest.setData(data);
+		return summaryStatisticsImportRequest;
 	}
 
-	protected Map<Integer, String> createGeolocationIdEnvironmentMap(
+	protected Map<String, String> createEnvironmentTrialInstanceMap(
 		final Set<String> environments, final int studyId,
 		final String environmentFactorName) {
 
 		final int datasetId = this.getTrialDataSet(studyId).getId();
-		final Map<Integer, String> envFactorTolocationIdMap = new LinkedHashMap<>();
+		final Map<String, String> environmentTrialInstanceMap = new LinkedHashMap<>();
 		final TrialEnvironments trialEnvironments = this.studyDataManager.getTrialEnvironmentsInDataset(datasetId);
 
 		final boolean isSelectedEnvironmentFactorALocation = this.studyDataManager.isLocationIdVariable(studyId, environmentFactorName);
@@ -633,20 +580,20 @@ public class BreedingViewImportServiceImpl implements BreedingViewImportService 
 			// replaced with semicolon. So we need to replace semicolon with
 			// comma again
 			final String sanitizedEnvironmentFactor = environmentName.replace(";", ",");
-			Integer geolocationId = this.getTrialEnvironmentId(trialEnvironments, environmentFactorName, sanitizedEnvironmentFactor,
+			String trialInstanceNumber = this.getTrialInstanceNumber(trialEnvironments, environmentFactorName, sanitizedEnvironmentFactor,
 				isSelectedEnvironmentFactorALocation, locationIdToNameMap);
-			if (geolocationId == null) {
-				geolocationId = this.getTrialEnvironmentId(trialEnvironments, environmentFactorName, environmentName,
+			if (trialInstanceNumber == null) {
+				trialInstanceNumber = this.getTrialInstanceNumber(trialEnvironments, environmentFactorName, environmentName,
 					isSelectedEnvironmentFactorALocation, locationIdToNameMap);
 			}
 
-			envFactorTolocationIdMap.put(geolocationId, environmentName);
+			environmentTrialInstanceMap.put(environmentName, trialInstanceNumber);
 		}
 
-		return envFactorTolocationIdMap;
+		return environmentTrialInstanceMap;
 	}
 
-	protected Integer getTrialEnvironmentId(
+	protected String getTrialInstanceNumber(
 		final TrialEnvironments trialEnvironments, final String environmentFactor,
 		final String environmentName, final boolean isSelectedEnvironmentFactorALocation,
 		final Map<String, String> locationNameToIdMap) {
@@ -661,68 +608,20 @@ public class BreedingViewImportServiceImpl implements BreedingViewImportService 
 		}
 
 		if (trialEnvironment != null) {
-			return trialEnvironment.getId();
+			return trialEnvironment.getVariables().findById(TermId.TRIAL_INSTANCE_FACTOR.getId()).getValue();
 		} else {
 			return null;
 		}
 
 	}
 
-	private String getLocationIdFromMap(final Map<String, String> locationIdMap, final String value){
-		return locationIdMap.entrySet().stream().filter(entry -> Objects.equals(entry.getValue(), value)).findAny().get().getKey();
-	}
-
-	/**
-	 * This method creates the summary statistics variable types from the
-	 * relevant summary statistics columns for traits included in the summary
-	 * output file from BV.
-	 *
-	 * @param summaryStatsCSV
-	 * @param trialDataSet    - environment dataset of study analyzed
-	 * @param plotVariates    - traits of study analyzed
-	 * @param programUUID     - unique UUID of program where the study belongs to
-	 * @return VariableTypeList containing the summary statistics variable types
-	 * @throws IOException
-	 */
-	VariableTypeList createSummaryStatsVariableTypes(
-		final SummaryStatsCSV summaryStatsCSV, final DataSet trialDataSet,
-		final VariableTypeList plotVariates, final String programUUID) throws IOException {
-		final VariableTypeList summaryStatsVariableTypeList = new VariableTypeList();
-
-		final List<String> summaryHeaders = summaryStatsCSV.getSummaryHeaders();
-		final Map<String, Integer> summaryStatNameToIdMap = this.findOrSaveMethodsIfNotExisting(summaryHeaders);
-
-		final boolean isSummaryVariable = true;
-		final int numberOfTrialDatasetVariables = trialDataSet.getVariableTypes().size();
-		int rank = trialDataSet.getVariableTypes().getVariableTypes().get(numberOfTrialDatasetVariables - 1).getRank() + 1;
-
-		// Iterate through relevant summary statistics gathered per trait the
-		// output file of Breeding View
-		for (final String summaryStatName : summaryHeaders) {
-			for (final String trait : summaryStatsCSV.getTraits()) {
-				final String localName = trait + "_" + summaryStatName;
-
-				// Only create summary statistic variable if not yet existing in
-				// trial dataset
-				if (this.localNameToAliasMap.containsValue(trait) && trialDataSet.findVariableTypeByLocalName(localName) == null) {
-					final DMSVariableType originalVariableType = plotVariates.findByLocalName(trait);
-					// Use the method generated for the summary statistic
-					// variable
-					final Term summaryStatMethod = new Term(summaryStatNameToIdMap.get(summaryStatName), summaryStatName, summaryStatName);
-					// Create the summary statistic variable type and add to
-					// list
-					final DMSVariableType summaryStatVariableType =
-						this.createAnalysisVariable(originalVariableType, localName, summaryStatMethod, programUUID, rank++,
-							isSummaryVariable);
-					summaryStatVariableType.setVariableType(VariableType.ANALYSIS_SUMMARY);
-					summaryStatsVariableTypeList.add(summaryStatVariableType);
-					trialDataSet.getVariableTypes().add(summaryStatVariableType);
-
-				}
-			}
+	private String getLocationIdFromMap(final Map<String, String> locationIdMap, final String value) {
+		final Optional<Entry<String, String>> entryOptional =
+			locationIdMap.entrySet().stream().filter(entry -> Objects.equals(entry.getValue(), value)).findAny();
+		if (entryOptional.isPresent()) {
+			return entryOptional.get().getKey();
 		}
-
-		return summaryStatsVariableTypeList;
+		return "";
 	}
 
 	/**
@@ -926,14 +825,13 @@ public class BreedingViewImportServiceImpl implements BreedingViewImportService 
 		// Create new scales for analysis variables if the original scale is
 		// categorical else retain the original scale
 		if (originalScale.getDataType().getId() == TermId.CATEGORICAL_VARIABLE.getId()) {
-			final String scaleName = this.generateAnalysisVariableScaleName(name);
-			final Term existingScale = this.ontologyDataManager.findTermByName(scaleName, CvId.SCALES);
+			final Term existingScale = this.ontologyDataManager.findTermByName(name, CvId.SCALES);
 			if (existingScale != null) {
 				return existingScale.getId();
 			} else {
 				final Scale scale = new Scale();
-				scale.setName(scaleName);
-				scale.setDefinition(scaleName);
+				scale.setName(name);
+				scale.setDefinition(name);
 				scale.setDataType(DataType.NUMERIC_VARIABLE);
 				this.scaleDataManager.addScale(scale);
 				return scale.getId();
@@ -941,23 +839,6 @@ public class BreedingViewImportServiceImpl implements BreedingViewImportService 
 		} else {
 			return scaleId;
 		}
-	}
-
-	String generateAnalysisVariableScaleName(final String name) {
-		final String variableName = name.substring(0, name.lastIndexOf('_'));
-		String scaleName = "";
-		if (name.endsWith(MeansCSV.MEANS_SUFFIX) || name.endsWith(BreedingViewImportServiceImpl.MEAN_SED_SUFFIX) || name
-			.endsWith(BreedingViewImportServiceImpl.MEAN_SUFFIX)) {
-			scaleName = this.messageSource.getMessage(CommonMessage.MEANS_SCALE_NAME.name(), new Object[] {variableName}, Locale.ENGLISH);
-		} else if (name.endsWith(BreedingViewImportServiceImpl.CV_SUFFIX)) {
-			scaleName = this.messageSource.getMessage(CommonMessage.CV_SCALE_NAME.name(), new Object[] {variableName}, Locale.ENGLISH);
-		} else if (name.endsWith(BreedingViewImportServiceImpl.HERITABILITY_SUFFIX)) {
-			scaleName = this.messageSource
-				.getMessage(CommonMessage.HERITABILITY_SCALE_NAME.name(), new Object[] {variableName}, Locale.ENGLISH);
-		} else if (name.endsWith(BreedingViewImportServiceImpl.PVALUE_SUFFIX)) {
-			scaleName = this.messageSource.getMessage(CommonMessage.PVALUE_SCALE_NAME.name(), new Object[] {variableName}, Locale.ENGLISH);
-		}
-		return scaleName;
 	}
 
 	/***
@@ -993,8 +874,8 @@ public class BreedingViewImportServiceImpl implements BreedingViewImportService 
 		// Only process the new traits that were not part of the previous
 		// analysis
 		if (existingMeansVariables != null) {
-			for (final DMSVariableType var : existingMeansVariables) {
-				String variateName = var.getLocalName().trim();
+			for (final DMSVariableType dmsVariableType : existingMeansVariables) {
+				String variateName = dmsVariableType.getLocalName().trim();
 				variateName = variateName.substring(0, variateName.lastIndexOf('_'));
 				newVariateNames.remove(variateName);
 			}
@@ -1041,10 +922,10 @@ public class BreedingViewImportServiceImpl implements BreedingViewImportService 
 		vtype.setStandardVariable(stVar);
 		vtype.setRank(rank);
 		vtype.setRole(phenotypicType);
-		final Variable var = new Variable();
-		var.setValue(value);
-		var.setVariableType(vtype);
-		return var;
+		final Variable variable = new Variable();
+		variable.setValue(value);
+		variable.setVariableType(vtype);
+		return variable;
 	}
 
 	/**
