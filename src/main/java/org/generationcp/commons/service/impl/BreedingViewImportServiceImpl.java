@@ -31,7 +31,6 @@ import org.generationcp.middleware.domain.oms.CvId;
 import org.generationcp.middleware.domain.oms.Term;
 import org.generationcp.middleware.domain.oms.TermId;
 import org.generationcp.middleware.domain.ontology.DataType;
-import org.generationcp.middleware.domain.ontology.Method;
 import org.generationcp.middleware.domain.ontology.Scale;
 import org.generationcp.middleware.domain.ontology.VariableType;
 import org.generationcp.middleware.enumeration.DatasetTypeEnum;
@@ -67,6 +66,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -234,8 +234,8 @@ public class BreedingViewImportServiceImpl implements BreedingViewImportService 
 
 				final String variableValue = traitsAndMeans.get(meansVariable).get(i).trim();
 				if (!variableValue.trim().isEmpty()) {
-					final Variable var = new Variable(meansDataSet.getVariableTypes().findByLocalName(meansVariable), variableValue);
-					list.add(var);
+					final Variable variable = new Variable(meansDataSet.getVariableTypes().findByLocalName(meansVariable), variableValue);
+					list.add(variable);
 				}
 
 			}
@@ -440,22 +440,6 @@ public class BreedingViewImportServiceImpl implements BreedingViewImportService 
 	}
 
 	/**
-	 * This creates a Method instance, save it and return the newly-created
-	 * method id
-	 *
-	 * @param methodName
-	 * @param methodDefinition
-	 * @return method id
-	 */
-	private Integer saveMethod(final String methodName, final String methodDefinition) {
-		final Method method = new Method();
-		method.setName(methodName);
-		method.setDefinition(methodDefinition);
-		this.methodDataManager.addMethod(method);
-		return method.getId();
-	}
-
-	/**
 	 * This method checks if the ontology variable with given name exists
 	 *
 	 * @param variableName
@@ -527,12 +511,12 @@ public class BreedingViewImportServiceImpl implements BreedingViewImportService 
 			final SummaryStatisticsImportRequest summaryStatisticsImportRequest =
 				this.createSummaryStatisticsImportRequest(summaryStatsCSV, environmentTrialInstanceMap, analysisSummaryVariablesMap);
 
-			// Get the means dataset if it exists.
+			// Get the summary statistics dataset if it exists.
 			final List<DmsProject> datasets = this.daoFactory.getDmsProjectDAO()
 				.getDatasetsByTypeForStudy(Arrays.asList(studyId), DatasetTypeEnum.SUMMARY_STATISTICS_DATA.getId());
 			final CropType cropType = this.contextUtil.getProjectInContext().getCropType();
 			if (CollectionUtils.isEmpty(datasets)) {
-				// If the means dataset does not exist, create a new summary statistics dataset
+				// If the summary statistics dataset does not exist, create a new dataset
 				this.siteAnalysisService.createSummaryStatisticsDataset(cropType.getCropName(), studyId, summaryStatisticsImportRequest);
 			} else {
 				// If it already exists, update the summary statistics dataset
@@ -549,8 +533,9 @@ public class BreedingViewImportServiceImpl implements BreedingViewImportService 
 	protected SummaryStatisticsImportRequest createSummaryStatisticsImportRequest(final SummaryStatsCSV summaryStatsCSV,
 		final Map<String, String> environmentTrialInstanceMap, final MultiKeyMap variablesMap) throws IOException {
 
+		final List<Integer> variableIds = new ArrayList<>(variablesMap.values());
 		final Map<Integer, String> analysisSummaryVariableNamesMap =
-			this.daoFactory.getCvTermDao().getByIds(new ArrayList<Integer>(variablesMap.values())).stream()
+			this.daoFactory.getCvTermDao().getByIds(variableIds).stream()
 				.collect(Collectors.toMap(CVTerm::getCvTermId, CVTerm::getName));
 
 		final SummaryStatisticsImportRequest summaryStatisticsImportRequest = new SummaryStatisticsImportRequest();
@@ -631,7 +616,12 @@ public class BreedingViewImportServiceImpl implements BreedingViewImportService 
 	}
 
 	private String getLocationIdFromMap(final Map<String, String> locationIdMap, final String value) {
-		return locationIdMap.entrySet().stream().filter(entry -> Objects.equals(entry.getValue(), value)).findAny().get().getKey();
+		final Optional<Entry<String, String>> entryOptional =
+			locationIdMap.entrySet().stream().filter(entry -> Objects.equals(entry.getValue(), value)).findAny();
+		if (entryOptional.isPresent()) {
+			return entryOptional.get().getKey();
+		}
+		return "";
 	}
 
 	/**
@@ -884,8 +874,8 @@ public class BreedingViewImportServiceImpl implements BreedingViewImportService 
 		// Only process the new traits that were not part of the previous
 		// analysis
 		if (existingMeansVariables != null) {
-			for (final DMSVariableType var : existingMeansVariables) {
-				String variateName = var.getLocalName().trim();
+			for (final DMSVariableType dmsVariableType : existingMeansVariables) {
+				String variateName = dmsVariableType.getLocalName().trim();
 				variateName = variateName.substring(0, variateName.lastIndexOf('_'));
 				newVariateNames.remove(variateName);
 			}
@@ -932,10 +922,10 @@ public class BreedingViewImportServiceImpl implements BreedingViewImportService 
 		vtype.setStandardVariable(stVar);
 		vtype.setRank(rank);
 		vtype.setRole(phenotypicType);
-		final Variable var = new Variable();
-		var.setValue(value);
-		var.setVariableType(vtype);
-		return var;
+		final Variable variable = new Variable();
+		variable.setValue(value);
+		variable.setVariableType(vtype);
+		return variable;
 	}
 
 	/**
