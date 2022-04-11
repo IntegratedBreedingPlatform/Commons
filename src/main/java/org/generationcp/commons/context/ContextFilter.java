@@ -32,8 +32,10 @@ public class ContextFilter implements Filter {
 
 		final HttpServletRequest request = (HttpServletRequest) servletRequest;
 		final HttpServletResponse response = (HttpServletResponse) servletResponse;
-		response.setHeader("x-frame-options", "SAMEORIGIN");
+		response.setHeader("X-Frame-Options", "SAMEORIGIN");
+		response.setHeader("X-XSS-Protection", "0");
 		response.setHeader("X-Content-Type-Options", "nosniff");
+		response.setHeader("Content-Type", "text/html; charset=utf-8");
 		response.setHeader("Referrer-Policy", "strict-origin-when-cross-origin");
 		response.setHeader("Feature-Policy", "self");
 		response.setHeader("Content-Security-Policy", HTTPRequestAwareServletFilter.CSP_CONFIG);

@@ -53,8 +53,10 @@ public class HTTPRequestAwareServletFilter implements Filter {
 
 		final HttpServletRequest req = (HttpServletRequest) servletRequest;
 		final HttpServletResponse resp = (HttpServletResponse) servletResponse;
-		resp.setHeader("x-frame-options", "SAMEORIGIN");
+		resp.setHeader("X-Frame-Options", "SAMEORIGIN");
+		resp.setHeader("X-XSS-Protection", "0");
 		resp.setHeader("X-Content-Type-Options", "nosniff");
+		resp.setHeader("Content-Type", "text/html; charset=utf-8");
 		resp.setHeader("Referrer-Policy", "strict-origin-when-cross-origin");
 		resp.setHeader("Feature-Policy", "self");
 		resp.setHeader("Content-Security-Policy", CSP_CONFIG);
