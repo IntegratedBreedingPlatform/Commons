@@ -74,11 +74,14 @@ public enum HelpModule {
 	GERMPLASM_LIST_IMPORT("germplasm.list.import"),
 	GERMPLASM_LIST_IMPORT_UPDATE("germplasm.list.import.update"),
 
-	// Graphical Queries;
+	// Graphical Queries
 	GRAPHICAL_QUERIES("graphical.queries"),
 
 	// Manage Program Settings
-	MANAGE_PROGRAM_SETTINGS("manage.program.settings");
+	MANAGE_PROGRAM_SETTINGS("manage.program.settings"),
+
+	// Manage Crop Settings
+	NAME_RULES_FOR_NEW_GERMPLASM("name.rules.for.new.germplasm");
 
 	/* This is the variable name from the property file helplinks.properties */
 	private String propertyName;
