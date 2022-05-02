@@ -81,6 +81,7 @@ public enum HelpModule {
 	MANAGE_PROGRAM_SETTINGS("manage.program.settings"),
 
 	// Manage Crop Settings
+	MANAGE_CROP_SETTINGS("manage.crop.settings"),
 	NAME_RULES_FOR_NEW_GERMPLASM("name.rules.for.new.germplasm");
 
 	/* This is the variable name from the property file helplinks.properties */
