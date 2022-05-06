@@ -361,7 +361,7 @@ public class TreeViewUtil {
 	 * @param germplasmList the germplasm list
 	 * @return the tree node
 	 */
-	private static TreeNode convertGermplasmListToTreeNode(final GermplasmList germplasmList, final boolean isFolderOnly, final List<UserDefinedField> listTypes) {
+	public static TreeNode convertGermplasmListToTreeNode(final GermplasmList germplasmList, final boolean isFolderOnly, final List<UserDefinedField> listTypes) {
 		final TreeNode treeNode = new TreeNode();
 
 		treeNode.setKey(germplasmList.getId().toString());
