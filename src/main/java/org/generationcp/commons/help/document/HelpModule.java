@@ -73,6 +73,7 @@ public enum HelpModule {
 	GERMPLASM_LIST("germplasm.list"),
 	GERMPLASM_LIST_IMPORT("germplasm.list.import"),
 	GERMPLASM_LIST_IMPORT_UPDATE("germplasm.list.import.update"),
+	GERMPLASM_LIST_COP_BETA("germplasm.list.cop.beta"),
 
 	// Graphical Queries
 	GRAPHICAL_QUERIES("graphical.queries"),
