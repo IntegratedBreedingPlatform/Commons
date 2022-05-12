@@ -303,12 +303,6 @@ public class GermplasmExportedWorkbook {
 				j++;
 			}
 
-			if (visibleColumnMap.containsKey(this.getColumnNamesTermId(ColumnLabels.SEED_SOURCE))
-				&& visibleColumnMap.get(this.getColumnNamesTermId(ColumnLabels.SEED_SOURCE))) {
-				listEntry.createCell(j).setCellValue(data.getSeedSource());
-				j++;
-			}
-
 			if (visibleColumnMap.containsKey(this.getColumnNamesTermId(ColumnLabels.GROUPGID))
 				&& visibleColumnMap.get(this.getColumnNamesTermId(ColumnLabels.GROUPGID))) {
 				listEntry.createCell(j).setCellValue(data.getGroupId());
@@ -592,18 +586,6 @@ public class GermplasmExportedWorkbook {
 			sourceRow.createCell(6, this.textStyle, "");
 		}
 
-		if (visibleColumnMap.containsKey(this.getColumnNamesTermId(ColumnLabels.SEED_SOURCE))
-			&& visibleColumnMap.get(this.getColumnNamesTermId(ColumnLabels.SEED_SOURCE))) {
-
-			final Variable seedSource = (Variable) columnTermMap.get(ColumnLabels.SEED_SOURCE.getTermId().getId());
-			final ExcelWorkbookRow sourceRow = new ExcelWorkbookRow(descriptionSheet.createRow(++actualRow));
-
-			if (seedSource != null) {
-				sourceRow.writeStandardVariableToRow(labelStyleFactor, this.textStyle, seedSource);
-				sourceRow.createCell(7, this.textStyle, "Text giving seed source - optional");
-			}
-		}
-
 		if (visibleColumnMap.containsKey(this.getColumnNamesTermId(ColumnLabels.ENTRY_TYPE))
 			&& visibleColumnMap.get(this.getColumnNamesTermId(ColumnLabels.ENTRY_TYPE))) {
 
@@ -718,14 +700,6 @@ public class GermplasmExportedWorkbook {
 			final Cell crossCell = listEntriesHeader.createCell(columnIndex);
 			crossCell.setCellValue(this.getTermNameOrDefaultLabel(ColumnLabels.MALE_PARENT, columnTermMap));
 			crossCell.setCellStyle(this.sheetStyles.getCellStyle(ExcelCellStyleBuilder.ExcelCellStyle.HEADING_STYLE_FACTOR));
-			columnIndex++;
-		}
-
-		if (visibleColumnMap.containsKey(this.getColumnNamesTermId(ColumnLabels.SEED_SOURCE))
-			&& visibleColumnMap.get(this.getColumnNamesTermId(ColumnLabels.SEED_SOURCE))) {
-			final Cell sourceCell = listEntriesHeader.createCell(columnIndex);
-			sourceCell.setCellValue(this.getTermNameOrDefaultLabel(ColumnLabels.SEED_SOURCE, columnTermMap));
-			sourceCell.setCellStyle(this.sheetStyles.getCellStyle(ExcelCellStyleBuilder.ExcelCellStyle.HEADING_STYLE_FACTOR));
 			columnIndex++;
 		}
 

@@ -58,8 +58,6 @@ public class GermplasmExportedWorkbookTest {
 		Assert.assertTrue("Expected that the number of visibleColums = " + this.input.getVisibleColumnMap().size(),
 				this.germplasmExportedWorkbook.getNoOfVisibleColumns(this.input.getVisibleColumnMap()) == this.input.getVisibleColumnMap()
 						.size());
-
-		this.input.getVisibleColumnMap().put(ColumnLabels.SEED_SOURCE.getName(), false);
 		final int visibleColumns = this.germplasmExportedWorkbook.getNoOfVisibleColumns(this.input.getVisibleColumnMap());
 		Assert.assertTrue("Expected that the number of visibleColums = " + (this.input.getVisibleColumnMap().size() - 1),
 				visibleColumns == this.input.getVisibleColumnMap().size() - 1);
@@ -101,11 +99,6 @@ public class GermplasmExportedWorkbookTest {
 		}
 		if (visibleColumnMap.get(String.valueOf(TermId.CROSS.getId()))) {
 			Assert.assertEquals("Expecting correct header for " + TermId.CROSS.toString(), TermId.CROSS.toString(),
-					row.getCell(columnIndex).getStringCellValue());
-			columnIndex++;
-		}
-		if (visibleColumnMap.get(String.valueOf(TermId.SEED_SOURCE.getId()))) {
-			Assert.assertEquals("Expecting correct header for " + TermId.SEED_SOURCE.toString(), TermId.SEED_SOURCE.toString(),
 					row.getCell(columnIndex).getStringCellValue());
 			columnIndex++;
 		}
@@ -152,11 +145,6 @@ public class GermplasmExportedWorkbookTest {
 			if (visibleColumnMap.get(String.valueOf(TermId.CROSS.getId()))) {
 				Assert.assertEquals("Expecting correct value for " + TermId.CROSS.toString() + " at Row " + (rowIndex + 1),
 						listData.getGroupName(), row.getCell(columnIndex).getStringCellValue());
-				columnIndex++;
-			}
-			if (visibleColumnMap.get(String.valueOf(TermId.SEED_SOURCE.getId()))) {
-				Assert.assertEquals("Expecting correct value for " + TermId.SEED_SOURCE.toString() + " at Row " + (rowIndex + 1),
-						listData.getSeedSource(), row.getCell(columnIndex).getStringCellValue());
 				columnIndex++;
 			}
 			if (visibleColumnMap.get(String.valueOf(TermId.GROUPGID.getId()))) {
