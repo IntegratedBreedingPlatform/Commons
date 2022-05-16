@@ -179,7 +179,7 @@ public class GermplasmExportServiceImplTest {
 		exportColumnHeaders.add(new ExportColumnHeader(TermId.DESIG.getId(), TermId.DESIG.toString(), true));
 		exportColumnHeaders.add(new ExportColumnHeader(TermId.CROSS.getId(), TermId.CROSS.toString(), true));
 		exportColumnHeaders.add(new ExportColumnHeader(TermId.GID.getId(), TermId.GID.toString(), true));
-		exportColumnHeaders.add(new ExportColumnHeader(TermId.SOURCE.getId(), TermId.SOURCE.toString(), true));
+		exportColumnHeaders.add(new ExportColumnHeader(TermId.IMMEDIATE_SOURCE_NAME.getId(), TermId.IMMEDIATE_SOURCE_NAME.toString(), true));
 		exportColumnHeaders.add(new ExportColumnHeader(TermId.DUPLICATE.getId(), TermId.DUPLICATE.toString(), true));
 		exportColumnHeaders.add(new ExportColumnHeader(TermId.BULK_WITH.getId(), TermId.BULK_WITH.toString(), true));
 		exportColumnHeaders.add(new ExportColumnHeader(TermId.BULK_COMPL.getId(), TermId.BULK_COMPL.toString(), true));
