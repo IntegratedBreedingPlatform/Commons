@@ -37,7 +37,7 @@ public class HTTPRequestAwareServletFilter implements Filter {
 	public static final String CSP_CONFIG = "default-src 'self'; "
 		+ "img-src 'self' data: https:; "
 		+ "frame-src 'self' blob: https://surveyhero.com; "
-		+ "connect-src 'self' https:; "
+		+ "connect-src 'self' https: http:; "
 		+ "object-src 'none'; "
 		+ "script-src 'self' https://embed-cdn.surveyhero.com 'unsafe-inline' 'unsafe-eval'; "
 		+ "style-src 'self' https://embed-cdn.surveyhero.com 'unsafe-inline'; ";
