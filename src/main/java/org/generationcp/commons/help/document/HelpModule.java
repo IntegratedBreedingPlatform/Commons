@@ -18,7 +18,6 @@ public enum HelpModule {
 	// ManageStudies
 	MANAGE_STUDIES("manage.studies"),
 	MANAGE_STUDIES_SETTINGS("manage.studies.settings"),
-	MANAGE_STUDIES_GERMPLASM("manage.studies.germplasm"),
 	MANAGE_STUDIES_TREATMENT_FACTORS("manage.studies.treatment.factors"),
 	MANAGE_STUDIES_ENVIRONMENT("manage.studies.environment"),
 	MANAGE_STUDIES_EXPERIMENTAL_DESIGN("manage.studies.experimental.design"),
