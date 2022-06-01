@@ -74,7 +74,7 @@ public class DatabaseConnectionFilter implements Filter {
 		return ResourceFinder.locateFile(databasePropertyFile).openStream();
 	}
 
-	protected ProgramService constructWorkbenchDataManager() {
+	protected ProgramService constructProgramService() {
 		ServletContext context = this.filterConfig.getServletContext();
 		SessionFactory workbenchSessionFactory =
 				(SessionFactory) context.getAttribute(MiddlewareServletContextListener.ATTR_WORKBENCH_SESSION_FACTORY);
@@ -115,7 +115,7 @@ public class DatabaseConnectionFilter implements Filter {
 	public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse, FilterChain filterChain) throws IOException,
 			ServletException {
 
-		ProgramService programService = this.constructWorkbenchDataManager();
+		ProgramService programService = this.constructProgramService();
 
 		ManagerFactory factory = null;
 
