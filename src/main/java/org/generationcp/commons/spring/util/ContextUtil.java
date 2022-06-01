@@ -68,7 +68,7 @@ public class ContextUtil {
 				new ProjectActivity(currentProject.getProjectId().intValue(), currentProject, activityTitle, activityDescription,
 						currentUser, new Date());
 
-		this.workbenchDataManager.addProjectActivity(projAct);
+		this.programService.addProjectActivity(projAct);
 	}
 
 	public boolean shouldShowReleaseNotes() {
