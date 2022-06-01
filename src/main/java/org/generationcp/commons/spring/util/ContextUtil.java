@@ -4,7 +4,6 @@ import com.google.common.base.Optional;
 import org.generationcp.commons.context.ContextConstants;
 import org.generationcp.commons.context.ContextInfo;
 import org.generationcp.middleware.api.program.ProgramService;
-import org.generationcp.middleware.manager.api.WorkbenchDataManager;
 import org.generationcp.middleware.pojos.workbench.Project;
 import org.generationcp.middleware.pojos.workbench.ProjectActivity;
 import org.generationcp.middleware.pojos.workbench.WorkbenchUser;
@@ -24,16 +23,13 @@ public class ContextUtil {
 	private HttpServletRequest request;
 
 	@Resource
-	private ProgramService programService;
-
-	@Resource
-	private WorkbenchDataManager workbenchDataManager;
+	private ProgramService programServiceMw;
 
 	@Resource
 	private UserService userService;
 
 	public String getCurrentProgramUUID() {
-		final Project program = org.generationcp.commons.util.ContextUtil.getProjectInContext(this.programService, this.request);
+		final Project program = org.generationcp.commons.util.ContextUtil.getProjectInContext(this.programServiceMw, this.request);
 		if (program != null) {
 			return program.getUniqueID();
 		}
@@ -45,11 +41,11 @@ public class ContextUtil {
 	}
 
 	public Project getProjectInContext() {
-		return org.generationcp.commons.util.ContextUtil.getProjectInContext(this.programService, this.request);
+		return org.generationcp.commons.util.ContextUtil.getProjectInContext(this.programServiceMw, this.request);
 	}
 
 	public Optional<Project> getProject() {
-		return org.generationcp.commons.util.ContextUtil.getProject(this.programService, this.request);
+		return org.generationcp.commons.util.ContextUtil.getProject(this.programServiceMw, this.request);
 	}
 
 	public int getCurrentWorkbenchUserId() {
@@ -68,7 +64,7 @@ public class ContextUtil {
 				new ProjectActivity(currentProject.getProjectId().intValue(), currentProject, activityTitle, activityDescription,
 						currentUser, new Date());
 
-		this.programService.addProjectActivity(projAct);
+		this.programServiceMw.addProjectActivity(projAct);
 	}
 
 	public boolean shouldShowReleaseNotes() {
