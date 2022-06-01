@@ -79,7 +79,7 @@
 
 	<bean id="managerFactoryProvider"
 		  class="org.generationcp.commons.hibernate.DynamicManagerFactoryProviderConcurrency">
-		<constructor-arg ref="workbenchDataManager" />
+		<constructor-arg ref="programService" />
 		<property name="pedigreeProfile" value="${pedigree.profile}"/>
 	</bean>
 

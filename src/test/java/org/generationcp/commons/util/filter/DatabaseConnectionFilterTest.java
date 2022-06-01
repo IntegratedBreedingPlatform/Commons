@@ -2,6 +2,7 @@
 package org.generationcp.commons.util.filter;
 
 import org.generationcp.commons.util.ResourceFinder;
+import org.generationcp.middleware.api.program.ProgramService;
 import org.generationcp.middleware.exceptions.MiddlewareQueryException;
 import org.generationcp.middleware.manager.DatabaseConnectionParameters;
 import org.generationcp.middleware.manager.ManagerFactory;
@@ -52,6 +53,9 @@ public class DatabaseConnectionFilterTest {
 
 	@Mock
 	private ServletResponse response;
+
+	@Mock
+	private ProgramService programService;
 
 	@InjectMocks
 	private final DatabaseConnectionFilter dut = Mockito.spy(new DatabaseConnectionFilter());
@@ -139,7 +143,7 @@ public class DatabaseConnectionFilterTest {
 		Project project = Mockito.mock(Project.class);
 		Mockito.when(project.getProjectId()).thenReturn((long) 1);
 		Mockito.doReturn(workbenchDataManager).when(this.dut).constructWorkbenchDataManager();
-		Mockito.doReturn(project).when(this.dut).getCurrentProject(workbenchDataManager, this.servletRequest);
+		Mockito.doReturn(project).when(this.dut).getCurrentProject(programService, this.servletRequest);
 		SessionFactory sessionFactory = Mockito.mock(SessionFactory.class);
 
 		Map<Long, SessionFactory> sessionFactoryMap = new HashMap<>();
@@ -147,8 +151,6 @@ public class DatabaseConnectionFilterTest {
 		sessionFactoryMap.put(project.getProjectId(), sessionFactory);
 
 		this.dut.doFilter(this.servletRequest, this.response, Mockito.mock(FilterChain.class));
-
-		Mockito.verify(this.servletRequest).setAttribute(DatabaseConnectionFilter.WORKBENCH_DATA_MANAGER, workbenchDataManager);
 		Mockito.verify(this.servletRequest).setAttribute(Matchers.eq(DatabaseConnectionFilter.ATTR_MANAGER_FACTORY),
 				Matchers.any(ManagerFactory.class));
 	}

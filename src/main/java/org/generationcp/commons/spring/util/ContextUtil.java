@@ -3,6 +3,7 @@ package org.generationcp.commons.spring.util;
 import com.google.common.base.Optional;
 import org.generationcp.commons.context.ContextConstants;
 import org.generationcp.commons.context.ContextInfo;
+import org.generationcp.middleware.api.program.ProgramService;
 import org.generationcp.middleware.manager.api.WorkbenchDataManager;
 import org.generationcp.middleware.pojos.workbench.Project;
 import org.generationcp.middleware.pojos.workbench.ProjectActivity;
@@ -23,13 +24,16 @@ public class ContextUtil {
 	private HttpServletRequest request;
 
 	@Resource
+	private ProgramService programService;
+
+	@Resource
 	private WorkbenchDataManager workbenchDataManager;
 
 	@Resource
 	private UserService userService;
 
 	public String getCurrentProgramUUID() {
-		final Project program = org.generationcp.commons.util.ContextUtil.getProjectInContext(this.workbenchDataManager, this.request);
+		final Project program = org.generationcp.commons.util.ContextUtil.getProjectInContext(this.programService, this.request);
 		if (program != null) {
 			return program.getUniqueID();
 		}
@@ -41,11 +45,11 @@ public class ContextUtil {
 	}
 
 	public Project getProjectInContext() {
-		return org.generationcp.commons.util.ContextUtil.getProjectInContext(this.workbenchDataManager, this.request);
+		return org.generationcp.commons.util.ContextUtil.getProjectInContext(this.programService, this.request);
 	}
 
 	public Optional<Project> getProject() {
-		return org.generationcp.commons.util.ContextUtil.getProject(this.workbenchDataManager, this.request);
+		return org.generationcp.commons.util.ContextUtil.getProject(this.programService, this.request);
 	}
 
 	public int getCurrentWorkbenchUserId() {

@@ -4,9 +4,9 @@ package org.generationcp.commons.security;
 import com.google.common.base.Optional;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.generationcp.commons.util.ContextUtil;
+import org.generationcp.middleware.api.program.ProgramService;
 import org.generationcp.middleware.exceptions.MiddlewareQueryException;
 import org.generationcp.middleware.manager.Operation;
-import org.generationcp.middleware.manager.api.WorkbenchDataManager;
 import org.generationcp.middleware.pojos.workbench.Project;
 import org.generationcp.middleware.pojos.workbench.WorkbenchUser;
 import org.generationcp.middleware.service.api.permission.PermissionService;
@@ -29,7 +29,7 @@ public class WorkbenchUserDetailsService implements UserDetailsService {
 	private UserService userService;
 
 	@Autowired
-	private WorkbenchDataManager workbenchDataManager;
+	private ProgramService programService;
 
 	@Autowired
 	private PermissionService permissionService;
@@ -48,7 +48,7 @@ public class WorkbenchUserDetailsService implements UserDetailsService {
 			if (matchingUsers != null && !matchingUsers.isEmpty()) {
 				final WorkbenchUser workbenchUser = matchingUsers.get(0);
 
-				final Optional<Project> project = ContextUtil.getProject(this.workbenchDataManager, this.request);
+				final Optional<Project> project = ContextUtil.getProject(this.programService, this.request);
 
 				String cropName = null;
 				Integer programId = null;
