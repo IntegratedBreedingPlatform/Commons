@@ -8,6 +8,7 @@ import com.google.common.cache.CacheBuilder;
 import org.apache.commons.lang3.StringUtils;
 import org.generationcp.commons.context.ContextConstants;
 import org.generationcp.commons.context.ContextInfo;
+import org.generationcp.middleware.api.program.ProgramService;
 import org.generationcp.middleware.exceptions.MiddlewareQueryException;
 import org.generationcp.middleware.manager.api.WorkbenchDataManager;
 import org.generationcp.middleware.pojos.workbench.Project;
@@ -41,15 +42,15 @@ public class ContextUtil {
 	/**
 	 * Use {@link #getProject(WorkbenchDataManager, HttpServletRequest)} when an absent project is a valid scenario
 	 */
-	public static Project getProjectInContext(final WorkbenchDataManager workbenchDataManager, final HttpServletRequest request) {
-		final Optional<Project> project = getProject(workbenchDataManager, request);
+	public static Project getProjectInContext(final ProgramService programService, final HttpServletRequest request) {
+		final Optional<Project> project = getProject(programService, request);
 		if (!project.isPresent()) {
 			throw new MiddlewareQueryException("Could not resolve selected project in Workbench.");
 		}
 		return project.get();
 	}
 
-	public static Optional<Project> getProject(final WorkbenchDataManager workbenchDataManager, final HttpServletRequest request) {
+	public static Optional<Project> getProject(final ProgramService programService, final HttpServletRequest request) {
 
 		final ContextInfo contextInfo = (ContextInfo) WebUtils.getSessionAttribute(request, ContextConstants.SESSION_ATTR_CONTEXT_INFO);
 
@@ -66,9 +67,9 @@ public class ContextUtil {
 
 		if (contextInfo != null) {
 			resolvedFromSessionContext = true;
-			project = workbenchDataManager.getProjectById(contextInfo.getSelectedProjectId());
+			project = programService.getProjectById(contextInfo.getSelectedProjectId());
 		} else {
-			project = workbenchDataManager.getLastOpenedProjectAnyUser();
+			project = programService.getLastOpenedProjectAnyUser();
 		}
 
 		if (project != null) {

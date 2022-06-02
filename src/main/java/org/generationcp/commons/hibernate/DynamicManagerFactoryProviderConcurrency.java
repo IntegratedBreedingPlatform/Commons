@@ -13,11 +13,11 @@ package org.generationcp.commons.hibernate;
 
 import org.generationcp.commons.util.ContextUtil;
 import org.generationcp.middleware.ContextHolder;
+import org.generationcp.middleware.api.program.ProgramService;
 import org.generationcp.middleware.exceptions.MiddlewareQueryException;
 import org.generationcp.middleware.hibernate.DatasourceUtilities;
 import org.generationcp.middleware.hibernate.HibernateSessionPerThreadProvider;
 import org.generationcp.middleware.manager.ManagerFactory;
-import org.generationcp.middleware.manager.api.WorkbenchDataManager;
 import org.generationcp.middleware.pojos.workbench.Project;
 import org.hibernate.SessionFactory;
 import org.slf4j.Logger;
@@ -39,11 +39,11 @@ public class DynamicManagerFactoryProviderConcurrency extends ManagerFactoryBase
 
 	}
 
-	public DynamicManagerFactoryProviderConcurrency(final WorkbenchDataManager workbenchDataManager) {
-		this.workbenchDataManager = workbenchDataManager;
+	public DynamicManagerFactoryProviderConcurrency(final ProgramService programService) {
+		this.programService = programService;
 	}
 
-	private WorkbenchDataManager workbenchDataManager;
+	private ProgramService programService;
 
 	@Autowired
 	private ApplicationContext applicationContext;
@@ -71,7 +71,7 @@ public class DynamicManagerFactoryProviderConcurrency extends ManagerFactoryBase
 	}
 
 	private Project getCropProject() throws MiddlewareQueryException {
-		return ContextUtil.getProjectInContext(this.workbenchDataManager,
+		return ContextUtil.getProjectInContext(this.programService,
 				((ServletRequestAttributes) org.springframework.web.context.request.RequestContextHolder.getRequestAttributes())
 				.getRequest());
 	}

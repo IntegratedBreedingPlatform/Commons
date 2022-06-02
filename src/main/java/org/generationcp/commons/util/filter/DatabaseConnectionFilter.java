@@ -3,6 +3,8 @@ package org.generationcp.commons.util.filter;
 
 import org.generationcp.commons.util.ContextUtil;
 import org.generationcp.commons.util.ResourceFinder;
+import org.generationcp.middleware.api.program.ProgramService;
+import org.generationcp.middleware.api.program.ProgramServiceImpl;
 import org.generationcp.middleware.exceptions.MiddlewareQueryException;
 import org.generationcp.middleware.hibernate.HibernateSessionPerRequestProvider;
 import org.generationcp.middleware.hibernate.HibernateSessionPerThreadProvider;
@@ -10,8 +12,6 @@ import org.generationcp.middleware.hibernate.HibernateSessionProvider;
 import org.generationcp.middleware.hibernate.SessionFactoryUtil;
 import org.generationcp.middleware.manager.DatabaseConnectionParameters;
 import org.generationcp.middleware.manager.ManagerFactory;
-import org.generationcp.middleware.manager.WorkbenchDataManagerImpl;
-import org.generationcp.middleware.manager.api.WorkbenchDataManager;
 import org.generationcp.middleware.pojos.workbench.Project;
 import org.generationcp.middleware.support.servlet.MiddlewareServletContextListener;
 import org.hibernate.SessionFactory;
@@ -41,7 +41,6 @@ public class DatabaseConnectionFilter implements Filter {
 	private final static Logger LOG = LoggerFactory.getLogger(DatabaseConnectionFilter.class);
 
 	public static final String ATTR_MANAGER_FACTORY = "managerFactory";
-	public static final String WORKBENCH_DATA_MANAGER = "workbenchDataManager";
 	public static final String PARAM_MIDDLEWARE_RESOURCE_FILES = "middleware_additional_resources";
 
 	private FilterConfig filterConfig;
@@ -75,14 +74,14 @@ public class DatabaseConnectionFilter implements Filter {
 		return ResourceFinder.locateFile(databasePropertyFile).openStream();
 	}
 
-	protected WorkbenchDataManager constructWorkbenchDataManager() {
+	protected ProgramService constructProgramService() {
 		ServletContext context = this.filterConfig.getServletContext();
 		SessionFactory workbenchSessionFactory =
 				(SessionFactory) context.getAttribute(MiddlewareServletContextListener.ATTR_WORKBENCH_SESSION_FACTORY);
 
 		HibernateSessionProvider sessionProviderForWorkbench = new HibernateSessionPerRequestProvider(workbenchSessionFactory);
 
-		return new WorkbenchDataManagerImpl(sessionProviderForWorkbench);
+		return new ProgramServiceImpl(sessionProviderForWorkbench);
 	}
 
 	protected SessionFactory retrieveCurrentProjectSessionFactory(Project project, String[] additionalResourceFiles) throws IOException {
@@ -101,9 +100,9 @@ public class DatabaseConnectionFilter implements Filter {
 	}
 
 	// wrapper method around static call to ContextUtil to make it simpler to test
-	protected Project getCurrentProject(WorkbenchDataManager workbenchDataManager, ServletRequest servletRequest)
+	protected Project getCurrentProject(ProgramService programService, ServletRequest servletRequest)
 			throws MiddlewareQueryException {
-		return ContextUtil.getProjectInContext(workbenchDataManager, (HttpServletRequest) servletRequest);
+		return ContextUtil.getProjectInContext(programService, (HttpServletRequest) servletRequest);
 	}
 
 	// wrapper method around static call to ContextUtil to make it simpler to test
@@ -116,13 +115,12 @@ public class DatabaseConnectionFilter implements Filter {
 	public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse, FilterChain filterChain) throws IOException,
 			ServletException {
 
-		WorkbenchDataManager workbenchDataManager = this.constructWorkbenchDataManager();
+		ProgramService programService = this.constructProgramService();
 
-		servletRequest.setAttribute(DatabaseConnectionFilter.WORKBENCH_DATA_MANAGER, workbenchDataManager);
 		ManagerFactory factory = null;
 
 		try {
-			Project project = this.getCurrentProject(workbenchDataManager, servletRequest);
+			Project project = this.getCurrentProject(programService, servletRequest);
 
 			String paramResourceFile =
 					this.filterConfig.getServletContext().getInitParameter(DatabaseConnectionFilter.PARAM_MIDDLEWARE_RESOURCE_FILES);

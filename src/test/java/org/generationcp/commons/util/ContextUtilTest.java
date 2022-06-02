@@ -1,14 +1,10 @@
 
 package org.generationcp.commons.util;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpSession;
-
 import org.generationcp.commons.context.ContextConstants;
 import org.generationcp.commons.context.ContextInfo;
-import org.generationcp.commons.security.SecurityUtil;
+import org.generationcp.middleware.api.program.ProgramService;
 import org.generationcp.middleware.exceptions.MiddlewareQueryException;
-import org.generationcp.middleware.manager.api.WorkbenchDataManager;
 import org.generationcp.middleware.pojos.workbench.Project;
 import org.generationcp.middleware.service.api.user.UserService;
 import org.junit.Assert;
@@ -20,17 +16,20 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
+
 public class ContextUtilTest {
 
 	private static Project testProject;
-	@Mock
-	private WorkbenchDataManager workbenchDataManager;
 	@Mock
 	private HttpServletRequest request;
 	@Mock
 	private HttpSession session;
 	@Mock
 	private UserService userService;
+	@Mock
+	private ProgramService programService;
 
 	@BeforeClass
 	public static void setupOnce() {
@@ -51,22 +50,22 @@ public class ContextUtilTest {
 	public void testGetProjectInContextResolvesFromSessionContext() throws MiddlewareQueryException {
 		Mockito.when(this.session.getAttribute(ContextConstants.SESSION_ATTR_CONTEXT_INFO)).thenReturn(new ContextInfo(1, 2L));
 		Mockito.when(this.request.getSession(Matchers.anyBoolean())).thenReturn(this.session);
-		Mockito.when(this.workbenchDataManager.getProjectById(2L)).thenReturn(ContextUtilTest.testProject);
+		Mockito.when(this.programService.getProjectById(2L)).thenReturn(ContextUtilTest.testProject);
 
-		Assert.assertNotNull(ContextUtil.getProjectInContext(this.workbenchDataManager, this.request));
-		Mockito.verify(this.workbenchDataManager).getProjectById(Matchers.anyLong());
-		Mockito.verify(this.workbenchDataManager, Mockito.never()).getLastOpenedProjectAnyUser();
+		Assert.assertNotNull(ContextUtil.getProjectInContext(this.programService, this.request));
+		Mockito.verify(this.programService).getProjectById(Matchers.anyLong());
+		Mockito.verify(this.programService, Mockito.never()).getLastOpenedProjectAnyUser();
 	}
 
 	@Test
 	public void testGetProjectInContextFallsBackToOldMethod() throws MiddlewareQueryException {
 		Mockito.when(this.session.getAttribute(ContextConstants.SESSION_ATTR_CONTEXT_INFO)).thenReturn(null);
 		Mockito.when(this.request.getSession(Matchers.anyBoolean())).thenReturn(this.session);
-		Mockito.when(this.workbenchDataManager.getLastOpenedProjectAnyUser()).thenReturn(ContextUtilTest.testProject);
+		Mockito.when(this.programService.getLastOpenedProjectAnyUser()).thenReturn(ContextUtilTest.testProject);
 
-		Assert.assertNotNull(ContextUtil.getProjectInContext(this.workbenchDataManager, this.request));
-		Mockito.verify(this.workbenchDataManager).getLastOpenedProjectAnyUser();
-		Mockito.verify(this.workbenchDataManager, Mockito.never()).getProjectById(Matchers.anyLong());
+		Assert.assertNotNull(ContextUtil.getProjectInContext(this.programService, this.request));
+		Mockito.verify(this.programService).getLastOpenedProjectAnyUser();
+		Mockito.verify(this.programService, Mockito.never()).getProjectById(Matchers.anyLong());
 	}
 
 	@Test(expected = MiddlewareQueryException.class)
@@ -74,9 +73,9 @@ public class ContextUtilTest {
 
 		Mockito.when(this.session.getAttribute(ContextConstants.SESSION_ATTR_CONTEXT_INFO)).thenReturn(null);
 		Mockito.when(this.request.getSession(Matchers.anyBoolean())).thenReturn(this.session);
-		Mockito.when(this.workbenchDataManager.getLastOpenedProjectAnyUser()).thenReturn(null);
+		Mockito.when(this.programService.getLastOpenedProjectAnyUser()).thenReturn(null);
 
-		ContextUtil.getProjectInContext(this.workbenchDataManager, this.request);
+		ContextUtil.getProjectInContext(this.programService, this.request);
 	}
 
 	@Test
@@ -117,7 +116,7 @@ public class ContextUtilTest {
 		Mockito.when(this.session.getAttribute(ContextConstants.SESSION_ATTR_CONTEXT_INFO)).thenReturn(
 				new ContextInfo(1, 1L));
 		Mockito.when(this.request.getSession(Matchers.anyBoolean())).thenReturn(this.session);
-		Mockito.when(this.workbenchDataManager.getProjectById(1L)).thenReturn(ContextUtilTest.testProject);
+		Mockito.when(this.programService.getProjectById(1L)).thenReturn(ContextUtilTest.testProject);
 
 		Assert.assertNotNull(ContextUtil.getContextInfoFromRequest(this.request));
 		Assert.assertEquals(Integer.valueOf(1), ContextUtil.getContextInfoFromRequest(this.request).getLoggedInUserId());
@@ -129,6 +128,6 @@ public class ContextUtilTest {
 		Mockito.when(this.session.getAttribute(ContextConstants.SESSION_ATTR_CONTEXT_INFO)).thenReturn(
 				new ContextInfo(1, 1L));
 		Mockito.when(this.request.getSession(Matchers.anyBoolean())).thenReturn(this.session);
-		Mockito.when(this.workbenchDataManager.getProjectById(1L)).thenReturn(ContextUtilTest.testProject);
+		Mockito.when(this.programService.getProjectById(1L)).thenReturn(ContextUtilTest.testProject);
 	}
 }

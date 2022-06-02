@@ -12,13 +12,13 @@
 package org.generationcp.commons.hibernate;
 
 import org.generationcp.commons.util.ContextUtil;
+import org.generationcp.middleware.api.program.ProgramService;
 import org.generationcp.middleware.exceptions.ConfigException;
 import org.generationcp.middleware.exceptions.MiddlewareQueryException;
 import org.generationcp.middleware.hibernate.HibernateSessionPerRequestProvider;
 import org.generationcp.middleware.hibernate.SessionFactoryUtil;
 import org.generationcp.middleware.manager.DatabaseConnectionParameters;
 import org.generationcp.middleware.manager.ManagerFactory;
-import org.generationcp.middleware.manager.api.WorkbenchDataManager;
 import org.generationcp.middleware.pojos.workbench.Project;
 import org.hibernate.SessionFactory;
 
@@ -31,20 +31,20 @@ public class DynamicManagerFactoryProvider extends ManagerFactoryBase implements
 	public DynamicManagerFactoryProvider() {
 	}
 
-	public DynamicManagerFactoryProvider(WorkbenchDataManager workbenchDataManager) {
-		this.workbenchDataManager = workbenchDataManager;
+	public DynamicManagerFactoryProvider(ProgramService programService) {
+		this.programService = programService;
 	}
 
 	private HibernateSessionPerRequestProvider sessionProvider;
 
 	private final static ThreadLocal<HttpServletRequest> CURRENT_REQUEST = new ThreadLocal<HttpServletRequest>();
 
-	private WorkbenchDataManager workbenchDataManager;
+	private ProgramService programService;
 
 	public synchronized ManagerFactory createInstance() throws MiddlewareQueryException {
 
 		String databaseName = null;
-		Project project = ContextUtil.getProjectInContext(this.workbenchDataManager, DynamicManagerFactoryProvider.CURRENT_REQUEST.get());
+		Project project = ContextUtil.getProjectInContext(this.programService, DynamicManagerFactoryProvider.CURRENT_REQUEST.get());
 		SessionFactory sessionFactory = this.sessionFactoryCache.get(project.getProjectId());
 
 		if (sessionFactory != null) {

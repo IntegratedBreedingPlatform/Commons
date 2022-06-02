@@ -2,10 +2,10 @@
 package org.generationcp.commons.security;
 
 import com.google.common.collect.Lists;
+import org.generationcp.middleware.api.program.ProgramService;
 import org.generationcp.middleware.domain.workbench.PermissionDto;
 import org.generationcp.middleware.exceptions.MiddlewareQueryException;
 import org.generationcp.middleware.manager.Operation;
-import org.generationcp.middleware.manager.WorkbenchDataManagerImpl;
 import org.generationcp.middleware.pojos.workbench.CropType;
 import org.generationcp.middleware.pojos.workbench.Project;
 import org.generationcp.middleware.pojos.workbench.Role;
@@ -49,7 +49,7 @@ public class WorkbenchUserDetailsServiceTest {
 	private PermissionService permissionService;
 
 	@Mock
-	private WorkbenchDataManagerImpl workbenchDataManager;
+	private ProgramService programService;
 
 	@InjectMocks
 	private WorkbenchUserDetailsService service;
@@ -79,7 +79,7 @@ public class WorkbenchUserDetailsServiceTest {
 			final Project project = new Project();
 			project.setProjectId(1L);
 			project.setCropType(new CropType("cropName"));
-			Mockito.when(this.workbenchDataManager.getLastOpenedProjectAnyUser()).thenReturn(project);
+			Mockito.when(this.programService.getLastOpenedProjectAnyUser()).thenReturn(project);
 
 			final PermissionDto permissionDto = new PermissionDto();
 			permissionDto.setName(PERMISSION_ADMIN);
