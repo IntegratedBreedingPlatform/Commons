@@ -2,9 +2,9 @@
 package org.generationcp.commons.security;
 
 import org.generationcp.commons.context.ContextConstants;
+import org.generationcp.middleware.api.program.ProgramService;
 import org.generationcp.middleware.domain.workbench.PermissionDto;
 import org.generationcp.middleware.exceptions.MiddlewareQueryException;
-import org.generationcp.middleware.manager.api.WorkbenchDataManager;
 import org.generationcp.middleware.pojos.workbench.CropType;
 import org.generationcp.middleware.pojos.workbench.Project;
 import org.generationcp.middleware.pojos.workbench.WorkbenchUser;
@@ -12,10 +12,8 @@ import org.generationcp.middleware.service.api.permission.PermissionService;
 import org.generationcp.middleware.service.api.user.UserService;
 import org.junit.Assert;
 import org.junit.Before;
-import org.junit.FixMethodOrder;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.junit.runners.MethodSorters;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
@@ -43,7 +41,7 @@ public class BMSPreAuthenticatedUsersRolePopulatorTest {
 	private UserService userService;
 
 	@Mock
-	private WorkbenchDataManager workbenchDataManager;
+	private ProgramService programService;
 
 	@Mock
 	private PermissionService permissionService;
@@ -85,7 +83,7 @@ public class BMSPreAuthenticatedUsersRolePopulatorTest {
 			project.setProjectId(SELECTED_PROJECT_ID);
 			final CropType cropType = new CropType(CROP_NAME);
 			project.setCropType(cropType);
-			Mockito.when(this.workbenchDataManager.getProjectById(SELECTED_PROJECT_ID)).thenReturn(project);
+			Mockito.when(this.programService.getProjectById(SELECTED_PROJECT_ID)).thenReturn(project);
 
 			final List<PermissionDto> permissions = new ArrayList<>();
 			final PermissionDto permission = new PermissionDto();

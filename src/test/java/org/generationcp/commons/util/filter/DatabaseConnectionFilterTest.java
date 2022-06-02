@@ -2,18 +2,14 @@
 package org.generationcp.commons.util.filter;
 
 import org.generationcp.commons.util.ResourceFinder;
+import org.generationcp.middleware.api.program.ProgramService;
 import org.generationcp.middleware.exceptions.MiddlewareQueryException;
 import org.generationcp.middleware.manager.DatabaseConnectionParameters;
 import org.generationcp.middleware.manager.ManagerFactory;
-import org.generationcp.middleware.manager.WorkbenchDataManagerImpl;
-import org.generationcp.middleware.manager.api.WorkbenchDataManager;
 import org.generationcp.middleware.pojos.workbench.Project;
-import org.generationcp.middleware.support.servlet.MiddlewareServletContextListener;
-import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.junit.Assert;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
@@ -82,21 +78,6 @@ public class DatabaseConnectionFilterTest {
 	}
 
 	@Test
-	@Ignore(value = "Ignoring until fixed to work with the transaction related changes.")
-	public void testConstructWorkbenchDataManager() {
-		SessionFactory sessionFactory = Mockito.mock(SessionFactory.class);
-		Session session = Mockito.mock(Session.class);
-		Mockito.when(this.context.getAttribute(MiddlewareServletContextListener.ATTR_WORKBENCH_SESSION_FACTORY)).thenReturn(sessionFactory);
-		Mockito.when(sessionFactory.openSession()).thenReturn(session);
-
-		WorkbenchDataManagerImpl dataManager = (WorkbenchDataManagerImpl) this.dut.constructWorkbenchDataManager();
-
-		Session openedSession = (Session) dataManager.getCurrentSession();
-		Assert.assertEquals(session, openedSession);
-
-	}
-
-	@Test
 	public void testRetrieveCurrentProjectSessionFactoryNothingInMap() throws IOException {
 		this.dut.setSessionFactoryMap(new HashMap<Long, SessionFactory>());
 		SessionFactory sessionFactory = Mockito.mock(SessionFactory.class);
@@ -135,11 +116,11 @@ public class DatabaseConnectionFilterTest {
 
 	@Test
 	public void testDoFilter() throws MiddlewareQueryException, ServletException, IOException {
-		WorkbenchDataManager workbenchDataManager = Mockito.mock(WorkbenchDataManager.class);
+		ProgramService programService = Mockito.mock(ProgramService.class);
 		Project project = Mockito.mock(Project.class);
 		Mockito.when(project.getProjectId()).thenReturn((long) 1);
-		Mockito.doReturn(workbenchDataManager).when(this.dut).constructWorkbenchDataManager();
-		Mockito.doReturn(project).when(this.dut).getCurrentProject(workbenchDataManager, this.servletRequest);
+		Mockito.doReturn(programService).when(this.dut).constructProgramService();
+		Mockito.doReturn(project).when(this.dut).getCurrentProject(programService, this.servletRequest);
 		SessionFactory sessionFactory = Mockito.mock(SessionFactory.class);
 
 		Map<Long, SessionFactory> sessionFactoryMap = new HashMap<>();
@@ -147,8 +128,6 @@ public class DatabaseConnectionFilterTest {
 		sessionFactoryMap.put(project.getProjectId(), sessionFactory);
 
 		this.dut.doFilter(this.servletRequest, this.response, Mockito.mock(FilterChain.class));
-
-		Mockito.verify(this.servletRequest).setAttribute(DatabaseConnectionFilter.WORKBENCH_DATA_MANAGER, workbenchDataManager);
 		Mockito.verify(this.servletRequest).setAttribute(Matchers.eq(DatabaseConnectionFilter.ATTR_MANAGER_FACTORY),
 				Matchers.any(ManagerFactory.class));
 	}

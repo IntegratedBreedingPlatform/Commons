@@ -3,8 +3,8 @@ package org.generationcp.commons.security;
 
 import org.generationcp.commons.context.ContextInfo;
 import org.generationcp.commons.util.ContextUtil;
+import org.generationcp.middleware.api.program.ProgramService;
 import org.generationcp.middleware.exceptions.MiddlewareQueryException;
-import org.generationcp.middleware.manager.api.WorkbenchDataManager;
 import org.generationcp.middleware.pojos.workbench.Project;
 import org.generationcp.middleware.pojos.workbench.WorkbenchUser;
 import org.generationcp.middleware.service.api.permission.PermissionService;
@@ -29,13 +29,13 @@ public class BMSPreAuthenticatedUsersRolePopulator implements AuthenticationDeta
 	private UserService userService;
 
 	@Autowired
-	private WorkbenchDataManager workbenchDataManager;
-
-	@Autowired
 	private PlatformTransactionManager transactionManager;
 
 	@Autowired
 	private PermissionService permissionService;
+
+	@Autowired
+	private ProgramService programService;
 
 	@Override
 	public GrantedAuthoritiesContainer buildDetails(final HttpServletRequest request) {
@@ -49,7 +49,7 @@ public class BMSPreAuthenticatedUsersRolePopulator implements AuthenticationDeta
 						ContextUtil.getCurrentWorkbenchUser(BMSPreAuthenticatedUsersRolePopulator.this.userService, request);
 
 					final ContextInfo requestContextInfo = ContextUtil.getContextInfoFromRequest(request);
-					final Project project = BMSPreAuthenticatedUsersRolePopulator.this.workbenchDataManager.getProjectById(
+					final Project project = BMSPreAuthenticatedUsersRolePopulator.this.programService.getProjectById(
 						requestContextInfo.getSelectedProjectId());
 
 					final Collection<? extends GrantedAuthority> authorities =

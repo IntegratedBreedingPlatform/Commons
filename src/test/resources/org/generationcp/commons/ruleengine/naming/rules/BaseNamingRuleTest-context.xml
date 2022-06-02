@@ -77,9 +77,14 @@
 		<constructor-arg ref="workbenchHibernateSessionProvider" />
 	</bean>
 
+	<bean id="programServiceMw"
+			  class="org.generationcp.middleware.api.program.ProgramServiceImpl">
+        <constructor-arg ref="workbenchHibernateSessionProvider"/>
+    </bean>
+
 	<bean id="managerFactoryProvider"
 		  class="org.generationcp.commons.hibernate.DynamicManagerFactoryProviderConcurrency">
-		<constructor-arg ref="workbenchDataManager" />
+		<constructor-arg ref="programServiceMw" />
 		<property name="pedigreeProfile" value="${pedigree.profile}"/>
 	</bean>
 
