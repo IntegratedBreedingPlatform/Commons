@@ -91,7 +91,6 @@ public class GermplasmExportTestHelper {
 			final GermplasmListData germplasmListData = new GermplasmListData();
 			germplasmListData.setId(x);
 			germplasmListData.setEntryId(x);
-			germplasmListData.setDesignation(ColumnLabels.DESIGNATION.getName() + x);
 			germplasmListData.setGroupName(ColumnLabels.PARENTAGE.getName() + x);
 			final ListDataInventory inventoryInfo = new ListDataInventory(x, x);
 			inventoryInfo.setLotCount(1);

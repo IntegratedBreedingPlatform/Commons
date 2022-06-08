@@ -15,6 +15,7 @@ import org.generationcp.commons.pojo.GermplasmParents;
 import org.generationcp.commons.workbook.generator.CodesSheetGenerator;
 import org.generationcp.commons.workbook.generator.GermplasmAttributesWorkbookExporter;
 import org.generationcp.commons.workbook.generator.GermplasmNamesWorkbookExporter;
+import org.generationcp.middleware.api.germplasm.GermplasmNameService;
 import org.generationcp.middleware.constant.ColumnLabels;
 import org.generationcp.middleware.domain.gms.ListDataColumnValues;
 import org.generationcp.middleware.domain.oms.CvId;
@@ -23,6 +24,7 @@ import org.generationcp.middleware.domain.oms.TermId;
 import org.generationcp.middleware.domain.ontology.Variable;
 import org.generationcp.middleware.interfaces.GermplasmExportSource;
 import org.generationcp.middleware.pojos.GermplasmList;
+import org.generationcp.middleware.pojos.GermplasmListData;
 
 import javax.annotation.Resource;
 import java.io.FileOutputStream;
@@ -31,6 +33,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 /**
  * Germplasm workbook which gets exported as a file. This file uses the ExcelWorkbookRow and the ExcelCellStyleBuilder to construct a
@@ -83,6 +86,9 @@ public class GermplasmExportedWorkbook {
 
 	@Resource
 	private GermplasmNamesWorkbookExporter namesGenerator;
+
+	@Resource
+	private GermplasmNameService germplasmNameService;
 
 	/**
 	 * Default constructor
@@ -255,6 +261,8 @@ public class GermplasmExportedWorkbook {
 		}
 
 		this.createListEntriesHeaderRow(observationSheet);
+		final List<Integer> gids = listData.stream().map(GermplasmExportSource::getGermplasmId).collect(Collectors.toList());
+		final Map<Integer, String> preferredNamesMap = this.germplasmNameService.getPreferredNamesByGIDs(gids);
 
 		int i = 1;
 		for (final GermplasmExportSource data : listData) {
@@ -281,7 +289,7 @@ public class GermplasmExportedWorkbook {
 
 			if (visibleColumnMap.containsKey(this.getColumnNamesTermId(ColumnLabels.DESIGNATION))
 				&& visibleColumnMap.get(this.getColumnNamesTermId(ColumnLabels.DESIGNATION))) {
-				listEntry.createCell(j).setCellValue(data.getDesignation());
+				listEntry.createCell(j).setCellValue(preferredNamesMap.get(data.getGermplasmId()));
 				j++;
 			}
 
