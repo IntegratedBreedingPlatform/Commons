@@ -24,7 +24,6 @@ import org.generationcp.middleware.domain.oms.TermId;
 import org.generationcp.middleware.domain.ontology.Variable;
 import org.generationcp.middleware.interfaces.GermplasmExportSource;
 import org.generationcp.middleware.pojos.GermplasmList;
-import org.generationcp.middleware.pojos.GermplasmListData;
 
 import javax.annotation.Resource;
 import java.io.FileOutputStream;
