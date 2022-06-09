@@ -1,6 +1,7 @@
 
 package org.generationcp.commons.parsing;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -12,6 +13,7 @@ import org.generationcp.commons.pojo.GermplasmListExportInputValues;
 import org.generationcp.commons.workbook.generator.CodesSheetGenerator;
 import org.generationcp.commons.workbook.generator.GermplasmAttributesWorkbookExporter;
 import org.generationcp.commons.workbook.generator.GermplasmNamesWorkbookExporter;
+import org.generationcp.middleware.api.germplasm.GermplasmNameService;
 import org.generationcp.middleware.constant.ColumnLabels;
 import org.generationcp.middleware.domain.oms.Term;
 import org.generationcp.middleware.domain.oms.TermId;
@@ -22,6 +24,7 @@ import org.generationcp.middleware.pojos.GermplasmListData;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.ArgumentMatchers;
 import org.mockito.InjectMocks;
 import org.mockito.Matchers;
 import org.mockito.Mock;
@@ -34,6 +37,8 @@ public class GermplasmExportedWorkbookTest {
 
 	private final GermplasmListExportInputValues input = GermplasmExportTestHelper.generateGermplasmListExportInputValues();
 
+	private static final String PREFERRED_NAME = "Preferred Name";
+
 	@Mock
 	private CodesSheetGenerator codesSheetGenerator;
 
@@ -42,6 +47,9 @@ public class GermplasmExportedWorkbookTest {
 
 	@Mock
 	private GermplasmNamesWorkbookExporter namesGenerator;
+
+	@Mock
+	private GermplasmNameService germplasmNameService;
 
 	@InjectMocks
 	private GermplasmExportedWorkbook germplasmExportedWorkbook;
@@ -70,8 +78,13 @@ public class GermplasmExportedWorkbookTest {
 		// input data
 		final HSSFWorkbook wb = GermplasmExportTestHelper.createWorkbook();
 		final GermplasmList germplasmList = this.input.getGermplasmList();
-		final List<GermplasmListData> listDatas = germplasmList.getListData();
+		final List<GermplasmListData> listData = germplasmList.getListData();
 		final ExcelCellStyleBuilder styles = new ExcelCellStyleBuilder(wb);
+		final Map<Integer, String> preferredNamesMap = new HashMap<>();
+		for(final GermplasmListData data: listData) {
+			preferredNamesMap.put(data.getGid(), PREFERRED_NAME);
+		}
+		Mockito.when(this.germplasmNameService.getPreferredNamesByGIDs(ArgumentMatchers.anyList())).thenReturn(preferredNamesMap);
 
 		this.germplasmExportedWorkbook.init(this.input);
 		final HSSFSheet observationSheet = this.germplasmExportedWorkbook.getWorkbook().getSheet("Observation");
@@ -121,52 +134,52 @@ public class GermplasmExportedWorkbookTest {
 		columnIndex++;
 		// Assert Row Values
 		int rowIndex = 1;
-		for (final GermplasmListData listData : listDatas) {
+		for (final GermplasmListData data : listData) {
 			row = observationSheet.getRow(rowIndex);
 
 			columnIndex = 0;
 			if (visibleColumnMap.get(String.valueOf(TermId.ENTRY_NO.getId()))) {
 				Assert.assertEquals("Expecting correct value for " + TermId.ENTRY_NO.toString() + " at Row " + (rowIndex + 1),
-						listData.getEntryId().doubleValue(), row.getCell(columnIndex).getNumericCellValue());
+						data.getEntryId().doubleValue(), row.getCell(columnIndex).getNumericCellValue());
 				Assert.assertEquals(styles.getCellStyle(ExcelCellStyleBuilder.ExcelCellStyle.NUMBER_COLUMN_HIGHLIGHT_STYLE_FACTOR),
 						row.getCell(columnIndex).getCellStyle());
 				columnIndex++;
 			}
 			if (visibleColumnMap.get(String.valueOf(TermId.GID.getId()))) {
 				Assert.assertEquals("Expecting correct value for " + TermId.GID.toString() + " at Row " + (rowIndex + 1),
-						listData.getGid().doubleValue(), row.getCell(columnIndex).getNumericCellValue());
+						data.getGid().doubleValue(), row.getCell(columnIndex).getNumericCellValue());
 				Assert.assertEquals(styles.getCellStyle(ExcelCellStyleBuilder.ExcelCellStyle.NUMBER_DATA_FORMAT_STYLE),
 						row.getCell(columnIndex).getCellStyle());
 				columnIndex++;
 			}
 			if (visibleColumnMap.get(String.valueOf(TermId.ENTRY_CODE.getId()))) {
 				Assert.assertEquals("Expecting correct value for " + TermId.ENTRY_NO.toString() + " at Row " + (rowIndex + 1),
-						listData.getEntryCode(), row.getCell(columnIndex).getStringCellValue());
+						data.getEntryCode(), row.getCell(columnIndex).getStringCellValue());
 				columnIndex++;
 			}
 			if (visibleColumnMap.get(String.valueOf(TermId.DESIG.getId()))) {
-				Assert.assertEquals("Expecting correct value for DESIGNATION at Row " + (rowIndex + 1), listData.getDesignation(),
+				Assert.assertEquals("Expecting correct value for DESIGNATION at Row " + (rowIndex + 1), PREFERRED_NAME,
 						row.getCell(columnIndex).getStringCellValue());
 				columnIndex++;
 			}
 			if (visibleColumnMap.get(String.valueOf(TermId.CROSS.getId()))) {
 				Assert.assertEquals("Expecting correct value for " + TermId.CROSS.toString() + " at Row " + (rowIndex + 1),
-						listData.getGroupName(), row.getCell(columnIndex).getStringCellValue());
+						data.getGroupName(), row.getCell(columnIndex).getStringCellValue());
 				columnIndex++;
 			}
 			if (visibleColumnMap.get(String.valueOf(TermId.SEED_SOURCE.getId()))) {
 				Assert.assertEquals("Expecting correct value for " + TermId.SEED_SOURCE.toString() + " at Row " + (rowIndex + 1),
-						listData.getSeedSource(), row.getCell(columnIndex).getStringCellValue());
+						data.getSeedSource(), row.getCell(columnIndex).getStringCellValue());
 				columnIndex++;
 			}
 			if (visibleColumnMap.get(String.valueOf(TermId.GROUPGID.getId()))) {
 				Assert.assertEquals("Expecting correct value for " + TermId.GROUPGID.toString() + " at Row " + (rowIndex + 1),
-						listData.getGroupId().doubleValue(), row.getCell(columnIndex).getNumericCellValue());
+						data.getGroupId().doubleValue(), row.getCell(columnIndex).getNumericCellValue());
 				columnIndex++;
 			}
 
 			Assert.assertEquals("Expecting correct value for " + TermId.SEED_AMOUNT_G.toString() + " at Row " + (rowIndex + 1),
-					listData.getStockIDs(), row.getCell(columnIndex).getStringCellValue());
+					data.getStockIDs(), row.getCell(columnIndex).getStringCellValue());
 			rowIndex++;
 		}
 	}
