@@ -4,7 +4,6 @@ package org.generationcp.commons.ruleengine.stockid;
 import java.util.List;
 
 import org.generationcp.commons.ruleengine.OrderedRuleExecutionContext;
-import org.generationcp.middleware.service.api.InventoryService;
 import org.generationcp.middleware.service.api.inventory.LotService;
 
 /**
