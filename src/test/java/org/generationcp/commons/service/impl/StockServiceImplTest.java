@@ -1,13 +1,9 @@
 
 package org.generationcp.commons.service.impl;
 
-import org.generationcp.commons.ruleengine.RuleFactory;
-import org.generationcp.commons.ruleengine.service.RulesService;
 import org.generationcp.commons.ruleengine.stockid.StockIDSeparatorRule;
-import org.generationcp.middleware.domain.inventory.InventoryDetails;
 import org.generationcp.middleware.exceptions.MiddlewareException;
-import org.generationcp.middleware.manager.api.InventoryDataManager;
-import org.generationcp.middleware.service.api.InventoryService;
+import org.generationcp.middleware.service.api.inventory.LotService;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Ignore;
@@ -19,8 +15,6 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import javax.annotation.Resource;
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * Created by IntelliJ IDEA. User: Daniel Villafuerte
@@ -58,16 +52,9 @@ public class StockServiceImplTest {
 			StockServiceImplTest.PLOT_DUPE_PREFIX + StockServiceImplTest.TEST_INVENTORY_ID + StockServiceImplTest.COMMA
 			+ StockServiceImplTest.TEST_INVENTORY_ID_2,
 			null, null};
-	private static final Integer TEST_LIST_ID = 17;
 
 	@Resource
-	private RulesService rulesService;
-
-	@Resource
-	private RuleFactory ruleFactory;
-
-	@Resource
-	private InventoryService inventoryService;
+	private LotService lotService;
 
 	@Resource
 	private StockServiceImpl inventoryStockService;
@@ -79,7 +66,7 @@ public class StockServiceImplTest {
 
 	@Test
 	public void testCalculateNextStockIDPrefix() throws MiddlewareException {
-		Mockito.when(this.inventoryService.getCurrentNotationNumberForBreederIdentifier(StockServiceImplTest.DUMMY_BREEDER_IDENTIFIER))
+		Mockito.when(this.lotService.getCurrentNotationNumberForBreederIdentifier(StockServiceImplTest.DUMMY_BREEDER_IDENTIFIER))
 		.thenReturn(StockServiceImplTest.DUMMY_NOTATION_NUMBER);
 
 		String prefix = this.inventoryStockService.calculateNextStockIDPrefix(StockServiceImplTest.DUMMY_BREEDER_IDENTIFIER, null);

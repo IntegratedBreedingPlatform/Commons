@@ -4,7 +4,7 @@ package org.generationcp.commons.ruleengine.stockid;
 import java.util.List;
 
 import org.generationcp.commons.ruleengine.OrderedRuleExecutionContext;
-import org.generationcp.middleware.service.api.InventoryService;
+import org.generationcp.middleware.service.api.inventory.LotService;
 
 /**
  * An object that serves to provide a common context between rules that interact together for the purpose of stock ID generation. This
@@ -12,7 +12,7 @@ import org.generationcp.middleware.service.api.InventoryService;
  */
 public class StockIDGenerationRuleExecutionContext extends OrderedRuleExecutionContext {
 
-	private InventoryService inventoryService;
+	private LotService lotService;
 	private StringBuilder stockIDGenerationBuilder;
 	private String breederIdentifier;
 	private Integer notationNumber;
@@ -23,9 +23,9 @@ public class StockIDGenerationRuleExecutionContext extends OrderedRuleExecutionC
 		this(executionOrder, null);
 	}
 
-	public StockIDGenerationRuleExecutionContext(final List<String> executionOrder, final InventoryService inventoryService) {
+	public StockIDGenerationRuleExecutionContext(final List<String> executionOrder, final LotService lotService) {
 		super(executionOrder);
-		this.inventoryService = inventoryService;
+		this.lotService = lotService;
 		this.stockIDGenerationBuilder = new StringBuilder();
 	}
 
@@ -74,7 +74,8 @@ public class StockIDGenerationRuleExecutionContext extends OrderedRuleExecutionC
 		this.sequenceNumber = sequenceNumber;
 	}
 
-	public InventoryService getInventoryService() {
-		return this.inventoryService;
+	public LotService getLotService() {
+		return this.lotService;
 	}
+
 }

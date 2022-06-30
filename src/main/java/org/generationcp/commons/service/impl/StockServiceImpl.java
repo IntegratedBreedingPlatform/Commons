@@ -7,7 +7,7 @@ import org.generationcp.commons.ruleengine.service.RulesService;
 import org.generationcp.commons.ruleengine.stockid.StockIDGenerationRuleExecutionContext;
 import org.generationcp.commons.service.StockService;
 import org.generationcp.middleware.exceptions.MiddlewareException;
-import org.generationcp.middleware.service.api.InventoryService;
+import org.generationcp.middleware.service.api.inventory.LotService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.transaction.annotation.Transactional;
@@ -32,7 +32,7 @@ public class StockServiceImpl implements StockService {
 	private RuleFactory ruleFactory;
 
 	@Resource
-	private InventoryService inventoryService;
+	private LotService lotService;
 
 	/**
 	 * Returns the stock ID prefix (consisting of breeder identifier plus current notation number) and the configured separator e.g., 'DV1-'
@@ -44,7 +44,7 @@ public class StockServiceImpl implements StockService {
 	@Override
 	public String calculateNextStockIDPrefix(final String breederIdentifier, final String separator) {
 		List<String> sequenceList = Arrays.asList(this.ruleFactory.getRuleSequenceForNamespace("stockid"));
-		StockIDGenerationRuleExecutionContext context = new StockIDGenerationRuleExecutionContext(sequenceList, this.inventoryService);
+		StockIDGenerationRuleExecutionContext context = new StockIDGenerationRuleExecutionContext(sequenceList, this.lotService);
 		context.setBreederIdentifier(breederIdentifier);
 		context.setSeparator(separator);
 
