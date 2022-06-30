@@ -35,6 +35,5 @@
     <bean id="inventoryStockService"
           class="org.generationcp.commons.service.impl.StockServiceImpl">
     </bean>
-    <mockito:mock id="inventoryService" class="org.generationcp.middleware.service.api.InventoryService"/>
     <mockito:mock id="inventoryDataManager" class="org.generationcp.middleware.manager.api.InventoryDataManager"/>
 </beans>

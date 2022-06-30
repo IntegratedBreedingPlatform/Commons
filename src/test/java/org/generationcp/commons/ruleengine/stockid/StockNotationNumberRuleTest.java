@@ -2,9 +2,8 @@
 package org.generationcp.commons.ruleengine.stockid;
 
 import junit.framework.Assert;
-
 import org.generationcp.commons.ruleengine.RuleException;
-import org.generationcp.middleware.service.api.InventoryService;
+import org.generationcp.middleware.service.api.inventory.LotService;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
@@ -15,20 +14,20 @@ public class StockNotationNumberRuleTest {
 
 	private StockNotationNumberRule unitUnderTest;
 	private StockIDGenerationRuleExecutionContext ruleContext;
-	private InventoryService inventoryService;
+	private LotService lotService;
 
 	@Before
 	public void setUp() throws Exception {
 		unitUnderTest = new StockNotationNumberRule();
 
-		inventoryService = Mockito.mock(InventoryService.class);
-		ruleContext = new StockIDGenerationRuleExecutionContext(null, inventoryService);
+		lotService = Mockito.mock(LotService.class);
+		ruleContext = new StockIDGenerationRuleExecutionContext(null, lotService);
 		ruleContext.setBreederIdentifier("DV");
 	}
 
 	@Test
 	public void testStockNotation() throws RuleException {
-		Mockito.when(inventoryService.getCurrentNotationNumberForBreederIdentifier(Mockito.anyString())).thenReturn(TEST_NOTATION_NUMBER);
+		Mockito.when(this.lotService.getCurrentNotationNumberForBreederIdentifier(Mockito.anyString())).thenReturn(TEST_NOTATION_NUMBER);
 
 		unitUnderTest.runRule(ruleContext);
 		Assert.assertEquals("Unable to output the incremented value of the current notation number for input", new Integer(

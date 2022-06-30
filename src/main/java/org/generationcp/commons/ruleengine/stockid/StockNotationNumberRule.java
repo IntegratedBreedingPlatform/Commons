@@ -19,7 +19,7 @@ public class StockNotationNumberRule extends OrderedRule<StockIDGenerationRuleEx
 
 		try {
 			final Integer notationNumber =
-					context.getInventoryService().getCurrentNotationNumberForBreederIdentifier(context.getBreederIdentifier()) + 1;
+					context.getLotService().getCurrentNotationNumberForBreederIdentifier(context.getBreederIdentifier()) + 1;
 			context.setNotationNumber(notationNumber);
 		} catch (MiddlewareQueryException e) {
 			throw new RuleException(e.getMessage(), e);
