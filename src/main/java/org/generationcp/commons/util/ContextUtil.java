@@ -10,7 +10,7 @@ import org.generationcp.commons.context.ContextConstants;
 import org.generationcp.commons.context.ContextInfo;
 import org.generationcp.middleware.api.program.ProgramService;
 import org.generationcp.middleware.exceptions.MiddlewareQueryException;
-import org.generationcp.middleware.manager.api.WorkbenchDataManager;
+import org.generationcp.middleware.api.role.RoleService;
 import org.generationcp.middleware.pojos.workbench.Project;
 import org.generationcp.middleware.pojos.workbench.WorkbenchUser;
 import org.generationcp.middleware.service.api.user.UserService;
@@ -40,7 +40,7 @@ public class ContextUtil {
 		expireAfterWrite(60, TimeUnit.MINUTES).build();
 
 	/**
-	 * Use {@link #getProject(WorkbenchDataManager, HttpServletRequest)} when an absent project is a valid scenario
+	 * Use {@link #getProject(RoleService, HttpServletRequest)} when an absent project is a valid scenario
 	 */
 	public static Project getProjectInContext(final ProgramService programService, final HttpServletRequest request) {
 		final Optional<Project> project = getProject(programService, request);

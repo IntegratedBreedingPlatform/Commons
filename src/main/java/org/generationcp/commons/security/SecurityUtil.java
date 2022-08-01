@@ -8,10 +8,6 @@ import java.util.List;
 
 import org.apache.commons.codec.binary.Base64;
 import org.generationcp.middleware.domain.workbench.PermissionDto;
-import org.generationcp.middleware.manager.api.WorkbenchDataManager;
-import org.generationcp.middleware.pojos.workbench.WorkbenchUser;
-import org.generationcp.middleware.service.api.user.UserService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
