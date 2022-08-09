@@ -327,7 +327,7 @@ public class BreedingViewImportServiceImpl implements BreedingViewImportService 
 			this.createMeansVariable(TermId.DATASET_TITLE.getId(), "DATASET_TITLE", "Dataset title (local)", "My Dataset Description",
 				2, programUUID, PhenotypicType.DATASET), meansVariableList, meansVariableTypeList);
 
-		// Add plot dataset variables of type trial environment and germplasm to
+		// Add plot dataset variables of type trial environment and germplasm Detail and germplasm to
 		// means dataset (but not yet save it to the database)
 		this.createMeansVariablesFromPlotDatasetAndAddToList(plotDataSet, meansVariableTypeList, 3);
 
@@ -387,7 +387,8 @@ public class BreedingViewImportServiceImpl implements BreedingViewImportService 
 		int rank = lastRank;
 		for (final DMSVariableType factorFromDataSet : plotDataSet.getVariableTypes().getFactors().getVariableTypes()) {
 			if (factorFromDataSet.getStandardVariable().getPhenotypicType() == PhenotypicType.TRIAL_ENVIRONMENT
-				|| factorFromDataSet.getStandardVariable().getPhenotypicType() == PhenotypicType.GERMPLASM) {
+				|| factorFromDataSet.getStandardVariable().getPhenotypicType() == PhenotypicType.GERMPLASM
+				|| factorFromDataSet.getStandardVariable().getPhenotypicType() == PhenotypicType.ENTRY_DETAIL) {
 				factorFromDataSet.setRank(++rank);
 				meansVariableTypeList.add(factorFromDataSet);
 			}
