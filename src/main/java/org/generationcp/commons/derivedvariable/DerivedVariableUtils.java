@@ -4,6 +4,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.generationcp.commons.util.DateUtil;
 import org.generationcp.middleware.domain.dms.ValueReference;
+import org.generationcp.middleware.domain.etl.MeasurementData;
 import org.generationcp.middleware.domain.etl.MeasurementVariable;
 import org.generationcp.middleware.domain.ontology.DataType;
 import org.generationcp.middleware.domain.ontology.FormulaVariable;
@@ -131,7 +132,7 @@ public final class DerivedVariableUtils {
 
 		final String value = (String) valueToParse;
 
-		if (StringUtils.isBlank(value) && termMissingData != null) {
+		if ((StringUtils.isBlank(value) || MeasurementData.MISSING_VALUE.equals(value)) && termMissingData != null) {
 			termMissingData.add(measurementVariable.getLabel());
 		}
 
