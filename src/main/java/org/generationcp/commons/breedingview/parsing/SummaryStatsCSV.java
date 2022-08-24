@@ -1,18 +1,20 @@
 package org.generationcp.commons.breedingview.parsing;
 
+import au.com.bytecode.opencsv.CSVReader;
+import org.apache.commons.lang3.ArrayUtils;
+import org.generationcp.commons.exceptions.BreedingViewInvalidFormatException;
+
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-
-import org.apache.commons.lang3.ArrayUtils;
-import org.generationcp.commons.exceptions.BreedingViewInvalidFormatException;
-
-import au.com.bytecode.opencsv.CSVReader;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * This class parses a file and creates a map of variable names to a list of summary statistics values
@@ -51,8 +53,11 @@ public class SummaryStatsCSV {
 	 */
 	public List<String> getTraits() throws IOException {
 		this.data = this.getData();
-		// Get the traits for 1st environment, assumes that all environments have the same traits analyzed
-		return new ArrayList<>(this.data.values().iterator().next().keySet());
+		final Set<String> traits = new HashSet<String>();
+
+		// Get the traits from all environments to avoid missing one, assuming that not all environments have the same traits analyzed.
+		this.data.values().stream().forEach(e -> traits.addAll(e.keySet()));
+		return traits.stream().collect(Collectors.toList());
 	}
 
 	/**
