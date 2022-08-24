@@ -39,7 +39,7 @@ public class HTTPRequestAwareServletFilter implements Filter {
 		+ "frame-src 'self' blob: https://surveyhero.com; "
 		+ "connect-src 'self' https:; "
 		+ "object-src 'none'; "
-		+ "script-src 'self' https://embed-cdn.surveyhero.com 'unsafe-inline' 'unsafe-eval'; "
+		+ "script-src 'self' https://embed-cdn.surveyhero.com https://nominatim.openstreetmap.org 'unsafe-inline' 'unsafe-eval'; "
 		+ "style-src 'self' https://embed-cdn.surveyhero.com 'unsafe-inline'; ";
 
 	@Override
