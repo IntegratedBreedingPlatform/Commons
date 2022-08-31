@@ -27,6 +27,8 @@ public enum HelpModule {
 	MAKE_FIELD_MAPS("make.field.maps"),
 	MANAGE_LOCATIONS("manage.locations"),
 	MANAGE_BREEDING_METHODS("manage.breeding.methods"),
+	MANAGE_CROP_BREEDING_METHODS("manage.crop.settings.breeding.methods"),
+	MANAGE_CROP_BREEDING_LOCATIONS("manage.crop.settings.breeding.locations"),
 
 	// Label Printing
 	LABEL_PRINTING_GERMPLASM_MANAGER("label.printing.germplasm.manager"),
