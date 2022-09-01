@@ -4,8 +4,8 @@ import org.apache.commons.lang.RandomStringUtils;
 import org.apache.commons.lang.math.RandomUtils;
 import org.generationcp.commons.util.DateUtil;
 import org.generationcp.middleware.domain.dms.ValueReference;
+import org.generationcp.middleware.domain.etl.MeasurementData;
 import org.generationcp.middleware.domain.etl.MeasurementVariable;
-import org.generationcp.middleware.domain.oms.TermId;
 import org.generationcp.middleware.domain.ontology.DataType;
 import org.generationcp.middleware.service.api.dataset.ObservationUnitData;
 import org.generationcp.middleware.service.api.dataset.ObservationUnitRow;
@@ -377,6 +377,25 @@ public class DerivedVariableUtilsTest {
 		measurementVariable.setDataTypeId(DataType.NUMERIC_VARIABLE.getId());
 
 		final Object result = DerivedVariableUtils.parseValue("", measurementVariable, termMissingData);
+
+		assertTrue(result instanceof String);
+		assertTrue(termMissingData.contains(variableName));
+
+	}
+
+	@Test
+	public void testParseValue_ValueIsMissing() throws ParseException {
+
+		final Set<String> termMissingData = new HashSet<>();
+		final String variableName = RandomStringUtils.randomAlphanumeric(10);
+		final int variableTermid = RandomUtils.nextInt();
+
+		final MeasurementVariable measurementVariable = new MeasurementVariable();
+		measurementVariable.setTermId(variableTermid);
+		measurementVariable.setLabel(variableName);
+		measurementVariable.setDataTypeId(DataType.NUMERIC_VARIABLE.getId());
+
+		final Object result = DerivedVariableUtils.parseValue(MeasurementData.MISSING_VALUE, measurementVariable, termMissingData);
 
 		assertTrue(result instanceof String);
 		assertTrue(termMissingData.contains(variableName));
