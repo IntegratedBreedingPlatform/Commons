@@ -157,6 +157,7 @@ public class CrossingUtilTest {
 		maleParent.setGnpgs(-1);
 		final Germplasm femaleParent = new Germplasm();
 		femaleParent.setGnpgs(2);
+		femaleParent.setMethod(new Method(1));
 		final Germplasm fatherOfFemale = new Germplasm();
 
 		// here we are just trying to emphasize that the gid of the father of
