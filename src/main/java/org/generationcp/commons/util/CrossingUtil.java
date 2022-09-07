@@ -43,8 +43,8 @@ public class CrossingUtil {
 			if (male.getGnpgs() < 0) {
 				methodId = CrossingUtil.determineCrossingMethod(female, male, motherOfFemale, fatherOfFemale);
 			} else {
-				if (female != null && Objects.equals(Methods.SINGLE_CROSS.getMethodID(), female.getMethodId()) && male != null
-						&& Objects.equals(Methods.SINGLE_CROSS.getMethodID(), male.getMethodId())) {
+				if (female != null && Objects.equals(Methods.SINGLE_CROSS.getMethodID(), female.getMethod().getMid()) && male != null
+						&& Objects.equals(Methods.SINGLE_CROSS.getMethodID(), male.getMethod().getMid())) {
 					methodId = Methods.DOUBLE_CROSS.getMethodID();
 				} else {
 					methodId = Methods.COMPLEX_CROSS.getMethodID();
@@ -65,7 +65,7 @@ public class CrossingUtil {
 			if (motherOfParent1 != null && Objects.equals(motherOfParent1.getGid(), parent2.getGid())
 					|| fatherOfParent1 != null && Objects.equals(fatherOfParent1.getGid(), parent2.getGid())) {
 				methodId = Methods.BACKCROSS.getMethodID();
-			} else if (Objects.equals(Methods.SINGLE_CROSS.getMethodID(), parent1.getMethodId())) {
+			} else if (Objects.equals(Methods.SINGLE_CROSS.getMethodID(), parent1.getMethod().getMid())) {
 				methodId = Methods.THREE_WAY_CROSS.getMethodID();
 			} else {
 				methodId = Methods.COMPLEX_CROSS.getMethodID();
@@ -88,12 +88,12 @@ public class CrossingUtil {
 			final Name nameObject = triple.getMiddle();
 			final Germplasm germplasm = triple.getLeft();
 			Method method = null;
-			if (methodMap.containsKey(germplasm.getMethodId())) {
-				method = methodMap.get(germplasm.getMethodId());
+			if (methodMap.containsKey(germplasm.getMethod().getMid())) {
+				method = methodMap.get(germplasm.getMethod().getMid());
 			} else {
 				try {
-					method = germplasmDataManager.getMethodByID(germplasm.getMethodId());
-					methodMap.put(germplasm.getMethodId(), method);
+					method = germplasmDataManager.getMethodByID(germplasm.getMethod().getMid());
+					methodMap.put(germplasm.getMethod().getMid(), method);
 				} catch (final MiddlewareQueryException e) {
 					CrossingUtil.LOG.error(e.getMessage(), e);
 				}
