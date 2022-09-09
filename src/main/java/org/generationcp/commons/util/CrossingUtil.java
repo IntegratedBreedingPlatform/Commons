@@ -6,7 +6,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
-import org.apache.commons.lang3.tuple.Pair;
 import org.apache.commons.lang3.tuple.Triple;
 import org.generationcp.middleware.exceptions.MiddlewareQueryException;
 import org.generationcp.middleware.manager.api.GermplasmDataManager;
@@ -15,8 +14,6 @@ import org.generationcp.middleware.pojos.Method;
 import org.generationcp.middleware.pojos.Methods;
 import org.generationcp.middleware.pojos.Name;
 import org.generationcp.middleware.pojos.Progenitor;
-import org.generationcp.middleware.pojos.workbench.CropType.CropEnum;
-import org.generationcp.middleware.service.pedigree.PedigreeFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -83,7 +80,7 @@ public class CrossingUtil {
 	 */
 	public static void applyMethodNameType(final GermplasmDataManager germplasmDataManager,
 			final List<Triple<Germplasm, Name, List<Progenitor>>> germplasmTriples, final Integer defaultTypeId) {
-		final Map<Integer, Method> methodMap = new HashMap<Integer, Method>();
+		final Map<Integer, Method> methodMap = new HashMap<>();
 		for (final Triple<Germplasm, Name, List<Progenitor>> triple : germplasmTriples) {
 			final Name nameObject = triple.getMiddle();
 			final Germplasm germplasm = triple.getLeft();
