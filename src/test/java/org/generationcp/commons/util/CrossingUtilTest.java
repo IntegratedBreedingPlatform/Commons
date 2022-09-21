@@ -4,7 +4,6 @@ package org.generationcp.commons.util;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.ImmutableTriple;
 import org.apache.commons.lang3.tuple.Triple;
 import org.generationcp.middleware.manager.api.GermplasmDataManager;
@@ -33,7 +32,7 @@ public class CrossingUtilTest {
 		this.name = new Name();
 		this.name.setTypeId(this.defaultTypeId);
 		final Germplasm germplasm = new Germplasm();
-		germplasm.setMethodId(this.methodId);
+		germplasm.setMethod(new Method(this.methodId));
 		this.germplasmTriples.add(new ImmutableTriple<Germplasm, Name, List<Progenitor>>(germplasm, this.name, new ArrayList<Progenitor>()));
 	}
 
@@ -90,10 +89,10 @@ public class CrossingUtilTest {
 	public void testDetermineBreedingMethodBasedOnParentalLineParentDoubleCross() {
 		final Germplasm maleParent = new Germplasm();
 		maleParent.setGnpgs(1);
-		maleParent.setMethodId(Methods.SINGLE_CROSS.getMethodID());
+		maleParent.setMethod(new Method(Methods.SINGLE_CROSS.getMethodID()));
 		final Germplasm femaleParent = new Germplasm();
 		femaleParent.setGnpgs(1);
-		femaleParent.setMethodId(Methods.SINGLE_CROSS.getMethodID());
+		femaleParent.setMethod(new Method(Methods.SINGLE_CROSS.getMethodID()));
 
 		final Integer methodId = CrossingUtil.determineBreedingMethodBasedOnParentalLine(femaleParent, maleParent,
 				Mockito.mock(Germplasm.class), Mockito.mock(Germplasm.class), Mockito.mock(Germplasm.class), Mockito.mock(Germplasm.class));
@@ -136,7 +135,7 @@ public class CrossingUtilTest {
 		maleParent.setGnpgs(-1);
 		final Germplasm femaleParent = new Germplasm();
 		femaleParent.setGnpgs(2);
-		femaleParent.setMethodId(Methods.SINGLE_CROSS.getMethodID());
+		femaleParent.setMethod(new Method(Methods.SINGLE_CROSS.getMethodID()));
 		final Germplasm fatherOfFemale = new Germplasm();
 
 		// here we are just trying to emphasize that the gid of the father of
@@ -157,6 +156,7 @@ public class CrossingUtilTest {
 		maleParent.setGnpgs(-1);
 		final Germplasm femaleParent = new Germplasm();
 		femaleParent.setGnpgs(2);
+		femaleParent.setMethod(new Method(1));
 		final Germplasm fatherOfFemale = new Germplasm();
 
 		// here we are just trying to emphasize that the gid of the father of
@@ -177,10 +177,10 @@ public class CrossingUtilTest {
 	public void testDetermineBreedingMethodBasedOnParentalLineComplexCrossBothGNPGSAboveZero() {
 		final Germplasm maleParent = new Germplasm();
 		maleParent.setGnpgs(1);
-		maleParent.setMethodId(Methods.BACKCROSS.getMethodID());
+		maleParent.setMethod(new Method(Methods.BACKCROSS.getMethodID()));
 		final Germplasm femaleParent = new Germplasm();
 		femaleParent.setGnpgs(1);
-		femaleParent.setMethodId(Methods.SINGLE_CROSS.getMethodID());
+		femaleParent.setMethod(new Method(Methods.SINGLE_CROSS.getMethodID()));
 
 		final Integer methodId = CrossingUtil.determineBreedingMethodBasedOnParentalLine(femaleParent, maleParent,
 				Mockito.mock(Germplasm.class), Mockito.mock(Germplasm.class), Mockito.mock(Germplasm.class), Mockito.mock(Germplasm.class));
