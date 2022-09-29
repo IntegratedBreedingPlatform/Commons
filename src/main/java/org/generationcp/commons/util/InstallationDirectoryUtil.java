@@ -17,11 +17,14 @@ public class InstallationDirectoryUtil {
 
 	public void createWorkspaceDirectoriesForProject(final String cropName, final String projectName) {
 
-		// create the directory for the project
 		final File projectDir = this.getFileForWorkspaceProjectDirectory(cropName, projectName);
-		if (projectDir.exists()) {
+		final File breedingViewDir = new File(projectDir, ToolName.BREEDING_VIEW.getName());
+
+		// Verify is already exsits the directories.
+		if (projectDir.exists() && breedingViewDir.exists()) {
 			return;
 		}
+		// create the directory for the project
 		projectDir.mkdirs();
 
 		// create the directory only for breeding_view tool
