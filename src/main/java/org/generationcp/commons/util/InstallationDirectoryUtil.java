@@ -60,12 +60,20 @@ public class InstallationDirectoryUtil {
 
 	public String getInputDirectoryForProjectAndTool(final Project project, final ToolName tool) {
 		final File toolDir = this.getToolDirectoryForProject(project, tool);
-		return new File(toolDir, InstallationDirectoryUtil.INPUT).getAbsolutePath();
+		final File inputDir = new File(toolDir, InstallationDirectoryUtil.INPUT);
+		if (!inputDir.exists()) {
+			inputDir.mkdirs();
+		}
+		return inputDir.getAbsolutePath();
 	}
 	
 	public String getOutputDirectoryForProjectAndTool(final Project project, final ToolName tool) {
 		final File toolDir = this.getToolDirectoryForProject(project, tool);
-		return new File(toolDir, InstallationDirectoryUtil.OUTPUT).getAbsolutePath();
+		final File outputDir = new File(toolDir, InstallationDirectoryUtil.OUTPUT);
+		if (!outputDir.exists()) {
+			outputDir.mkdirs();
+		}
+		return outputDir.getAbsolutePath();
 	}
 	
 	public String getTempFileInOutputDirectoryForProjectAndTool(final String fileName, final String extension, final Project project,
