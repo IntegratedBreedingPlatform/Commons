@@ -25,8 +25,6 @@ public class MeansCSV {
 	protected static final String FORMAT_IS_INVALID_FOR_MEANS_DATA = "Cannot parse the file because the format is invalid for MEANS data.";
 	private final Map<String, String> nameToAliasMapping;
 	private final File file;
-	private boolean hasDuplicateColumns;
-
 	public MeansCSV(final File file, final Map<String, String> nameToAliasMapping) {
 		this.file = file;
 		this.nameToAliasMapping = nameToAliasMapping;
@@ -60,7 +58,6 @@ public class MeansCSV {
 			// Mark duplicate columns for skipping when building map
 			if (csvMap.containsKey(newHeaderName)) {
 				columnIndexesToSkip.add(columnIndex);
-				this.hasDuplicateColumns = true;
 
 				// Exclude "Unit Errors" analysis variables from map as we won't be saving them
 			} else if (newHeaderName.endsWith(MeansCSV.UNIT_ERRORS_SUFFIX)) {
@@ -117,10 +114,6 @@ public class MeansCSV {
 		if (meansCounter == 0) {
 			throw new BreedingViewInvalidFormatException(MeansCSV.FORMAT_IS_INVALID_FOR_MEANS_DATA);
 		}
-	}
-
-	public boolean isHasDuplicateColumns() {
-		return this.hasDuplicateColumns;
 	}
 
 }
