@@ -542,7 +542,7 @@ public class BreedingViewImportServiceImplTest {
 		// Method to test
 		final String[] csvHeadersArray = csvHeaders.toArray(new String[csvHeaders.size()]);
 		this.bvImportService.createMeansVariablesFromImportFileAndAddToList(csvHeadersArray, plotVariateList, meansVariableList,
-			BreedingViewImportServiceImplTest.PROGRAM_UUID, this.meansCVTerm, false);
+			BreedingViewImportServiceImplTest.PROGRAM_UUID, this.meansCVTerm);
 
 		// Expecting 1 analysis variable for each trait: <trait name>_Means
 		final int newVariablesSize = BreedingViewImportServiceImplTest.TRAITS.length;
@@ -607,7 +607,7 @@ public class BreedingViewImportServiceImplTest {
 		// Method to test
 		final String[] csvHeadersArray = csvHeaders.toArray(new String[csvHeaders.size()]);
 		this.bvImportService.appendVariableTypesToExistingMeans(csvHeadersArray, plotDataSet, meansDataSet,
-			BreedingViewImportServiceImplTest.PROGRAM_UUID, this.meansCVTerm, false);
+			BreedingViewImportServiceImplTest.PROGRAM_UUID, this.meansCVTerm);
 
 		// Expecting 1 analysis variable for each unanalyzed trait: <trait
 		// name>_Means

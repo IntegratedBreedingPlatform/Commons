@@ -151,7 +151,6 @@ public class BreedingViewImportServiceImpl implements BreedingViewImportService 
 			// Breeding View
 			final MeansCSV meansCSV = new MeansCSV(file, this.localNameToAliasMap);
 			final Map<String, List<String>> traitsAndMeans = meansCSV.getData();
-			final boolean hasDuplicateColumnsInFile = meansCSV.isHasDuplicateColumns();
 
 			if (!traitsAndMeans.isEmpty()) {
 
@@ -164,11 +163,10 @@ public class BreedingViewImportServiceImpl implements BreedingViewImportService 
 				// Else, create the means dataset with the means variable types
 				if (meansDataSet != null) {
 					meansDataSet =
-						this.appendVariableTypesToExistingMeans(csvHeader, plotDataSet, meansDataSet, study.getProgramUUID(), lsMean,
-							hasDuplicateColumnsInFile);
+						this.appendVariableTypesToExistingMeans(csvHeader, plotDataSet, meansDataSet, study.getProgramUUID(), lsMean);
 					meansDataSetExists = true;
 				} else {
-					meansDataSet = this.createMeansDataset(study, csvHeader, plotDataSet, lsMean, hasDuplicateColumnsInFile);
+					meansDataSet = this.createMeansDataset(study, csvHeader, plotDataSet, lsMean);
 				}
 
 				final DataSet trialDataSet = this.getTrialDataSet(studyId);
@@ -302,13 +300,10 @@ public class BreedingViewImportServiceImpl implements BreedingViewImportService 
 	 * @param study                     - project record of analyzed study
 	 * @param csvHeader                 - array of column headers from means file from BV
 	 * @param plotDataSet               - plot dataset of analyzed study
-	 * @param hasDuplicateColumnsInFile - flag whether duplicate columns were found in means file from
-	 *                                  BV
 	 * @return means dataset created and saved
 	 */
 	private DataSet createMeansDataset(
-		final DmsProject study, final String[] csvHeader, final DataSet plotDataSet, final CVTerm lSMean,
-		final boolean hasDuplicateColumnsInFile) {
+		final DmsProject study, final String[] csvHeader, final DataSet plotDataSet, final CVTerm lSMean) {
 
 		final VariableTypeList meansVariableTypeList = new VariableTypeList();
 		final VariableList meansVariableList = new VariableList();
@@ -334,7 +329,7 @@ public class BreedingViewImportServiceImpl implements BreedingViewImportService 
 		// Add analysis (mean) variable based from the import file to the means
 		// dataset (but not yet save it to the database)
 		this.createMeansVariablesFromImportFileAndAddToList(csvHeader, plotDataSet.getVariableTypes().getVariates(), meansVariableTypeList,
-			programUUID, lSMean, hasDuplicateColumnsInFile);
+			programUUID, lSMean);
 
 		// Save and return the newly-created means dataset
 		final DatasetReference datasetReference =
@@ -353,16 +348,14 @@ public class BreedingViewImportServiceImpl implements BreedingViewImportService 
 	 * @param meansVariableTypeList
 	 * @param programUUID
 	 * @param lsMean
-	 * @param hasDuplicateColumnsInFile
 	 */
 	void createMeansVariablesFromImportFileAndAddToList(
 		final String[] csvHeader, final VariableTypeList plotVariates,
-		final VariableTypeList meansVariableTypeList, final String programUUID, final CVTerm lsMean,
-		final boolean hasDuplicateColumnsInFile) {
+		final VariableTypeList meansVariableTypeList, final String programUUID, final CVTerm lsMean) {
 		final boolean isSummaryVariable = false;
 		final int numberOfMeansVariables = meansVariableTypeList.getVariableTypes().size();
 		int rank = meansVariableTypeList.getVariableTypes().get(numberOfMeansVariables - 1).getRank() + 1;
-		final Set<String> inputDataSetVariateNames = this.getAllNewVariatesToProcess(csvHeader, null, hasDuplicateColumnsInFile);
+		final Set<String> inputDataSetVariateNames = this.getAllNewVariatesToProcess(csvHeader, null);
 		final Term lsMeanTerm = new Term(lsMean.getCvTermId(), lsMean.getName(), lsMean.getDefinition());
 
 		for (final String variateName : inputDataSetVariateNames) {
@@ -736,12 +729,11 @@ public class BreedingViewImportServiceImpl implements BreedingViewImportService 
 	// FIXME No need to return back input parameter meansDataSet
 	protected DataSet appendVariableTypesToExistingMeans(
 		final String[] csvHeader, final DataSet plotDataSet, final DataSet meansDataSet,
-		final String programUUID, final CVTerm lsMean, final boolean hasDuplicateColumnsInFile) {
+		final String programUUID, final CVTerm lsMean) {
 		final int numberOfMeansVariables = meansDataSet.getVariableTypes().getVariableTypes().size();
 		int rank = meansDataSet.getVariableTypes().getVariableTypes().get(numberOfMeansVariables - 1).getRank() + 1;
 		final Set<String> traitsWithoutMeanVariable =
-			this.getAllNewVariatesToProcess(csvHeader, meansDataSet.getVariableTypes().getVariates().getVariableTypes(),
-				hasDuplicateColumnsInFile);
+			this.getAllNewVariatesToProcess(csvHeader, meansDataSet.getVariableTypes().getVariates().getVariableTypes());
 		final Term lsMeanTerm = new Term(lsMean.getCvTermId(), lsMean.getName(), lsMean.getDefinition());
 		final boolean isSummaryVariable = false;
 		for (final String variateName : traitsWithoutMeanVariable) {
@@ -856,14 +848,15 @@ public class BreedingViewImportServiceImpl implements BreedingViewImportService 
 	 * @return Set<String> - unique list of new variates
 	 */
 	private Set<String> getAllNewVariatesToProcess(
-		final String[] csvHeader, final List<DMSVariableType> existingMeansVariables,
-		final boolean hasDuplicateColumnsInFile) {
+		final String[] csvHeader, final List<DMSVariableType> existingMeansVariables) {
 		final Set<String> newVariateNames = new LinkedHashSet<>();
-		int variatesStartingIndex = 3;
-		if (hasDuplicateColumnsInFile) {
-			variatesStartingIndex = 2;
-		}
-		// Exclude the environment, entry # and gid factors which are first
+		final Optional<String> firstVariable = Arrays.stream(csvHeader)
+			.filter((header) -> header.contains(MeansCSV.MEANS_SUFFIX) || //
+								header.contains(MeansCSV.UNIT_ERRORS_SUFFIX) //
+			).findFirst();
+		final int variatesStartingIndex = Arrays.asList(csvHeader).indexOf(firstVariable.get());
+
+		// Exclude the environment, entry, gid and Desigantion factors which are first
 		// column headers
 		final List<String> inputDataSetVariateNames =
 			new ArrayList<>(Arrays.asList(Arrays.copyOfRange(csvHeader, variatesStartingIndex, csvHeader.length)));
