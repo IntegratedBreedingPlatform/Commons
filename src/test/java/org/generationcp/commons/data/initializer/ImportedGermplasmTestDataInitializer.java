@@ -3,7 +3,7 @@ package org.generationcp.commons.data.initializer;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.generationcp.commons.parsing.pojo.ImportedGermplasm;
+import org.generationcp.middleware.ruleengine.pojo.ImportedGermplasm;
 import org.generationcp.middleware.domain.gms.SystemDefinedEntryType;
 
 public class ImportedGermplasmTestDataInitializer {

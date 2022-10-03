@@ -1,6 +1,8 @@
 
 package org.generationcp.commons.util;
 
+import org.generationcp.middleware.ruleengine.util.ExpressionHelperCallback;
+
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 

@@ -11,6 +11,8 @@
 
 package org.generationcp.commons.pojo;
 
+import org.generationcp.middleware.ruleengine.pojo.AdvancingSource;
+
 import java.util.List;
 
 /**

@@ -10,15 +10,15 @@
             http://www.springframework.org/schema/context/spring-context-4.1.xsd
             http://www.mockito.org/spring/mockito https://bitbucket.org/kubek2k/springockito/raw/tip/springockito/src/main/resources/spring/mockito.xsd">
 
-    <bean id="ruleFactory" class="org.generationcp.commons.ruleengine.RuleFactory"
+    <bean id="ruleFactory" class="org.generationcp.middleware.ruleengine.RuleFactory"
           init-method="init"/>
 
-    <bean class="org.generationcp.commons.ruleengine.RulesPostProcessor">
+    <bean class="org.generationcp.middleware.ruleengine.RulesPostProcessor">
             <property name="ruleFactory" ref="ruleFactory"/>
         </bean>
 
     <bean id="ruleConfigProvider"
-          class="org.generationcp.commons.ruleengine.provider.PropertyFileRuleConfigurationProvider">
+          class="org.generationcp.middleware.ruleengine.provider.PropertyFileRuleConfigurationProvider">
         <property name="ruleSequenceConfiguration">
             <map>
                 <entry key="stockid" value="IDENTIFIER,NOTATION,SEPARATOR"/>
@@ -26,7 +26,7 @@
         </property>
     </bean>
 
-	<bean id="ruleService" class="org.generationcp.commons.ruleengine.impl.RulesServiceImpl" />
+	<bean id="ruleService" class="org.generationcp.middleware.ruleengine.impl.RulesServiceImpl" />
     <!--
         This component scan automatically registers all implementations of the Rule interface into the Spring context.
         In conjunction with the RulesPostProcessor above, this automatically populates the map in the RuleFactory

@@ -11,6 +11,8 @@
 
 package org.generationcp.commons.parsing.pojo;
 
+import org.generationcp.middleware.ruleengine.pojo.ImportedCross;
+
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashSet;
