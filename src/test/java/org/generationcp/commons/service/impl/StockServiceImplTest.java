@@ -1,7 +1,7 @@
 
 package org.generationcp.commons.service.impl;
 
-import org.generationcp.commons.ruleengine.stockid.StockIDSeparatorRule;
+import org.generationcp.middleware.ruleengine.stockid.StockIDSeparatorRule;
 import org.generationcp.middleware.exceptions.MiddlewareException;
 import org.generationcp.middleware.service.api.inventory.LotService;
 import org.junit.Assert;

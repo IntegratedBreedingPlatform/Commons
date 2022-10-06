@@ -11,13 +11,12 @@
 
 package org.generationcp.commons.hibernate.util;
 
-import java.util.Map;
+import org.generationcp.commons.hibernate.HttpRequestAware;
+import org.springframework.context.ApplicationContext;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-
-import org.generationcp.commons.hibernate.HttpRequestAware;
-import org.springframework.context.ApplicationContext;
+import java.util.Map;
 
 public abstract class HttpRequestAwareUtil {
 

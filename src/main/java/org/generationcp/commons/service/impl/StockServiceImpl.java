@@ -1,10 +1,10 @@
 
 package org.generationcp.commons.service.impl;
 
-import org.generationcp.commons.ruleengine.RuleException;
-import org.generationcp.commons.ruleengine.RuleFactory;
-import org.generationcp.commons.ruleengine.service.RulesService;
-import org.generationcp.commons.ruleengine.stockid.StockIDGenerationRuleExecutionContext;
+import org.generationcp.middleware.ruleengine.RuleException;
+import org.generationcp.middleware.ruleengine.RuleFactory;
+import org.generationcp.middleware.ruleengine.service.RulesService;
+import org.generationcp.middleware.ruleengine.stockid.StockIDGenerationRuleExecutionContext;
 import org.generationcp.commons.service.StockService;
 import org.generationcp.middleware.exceptions.MiddlewareException;
 import org.generationcp.middleware.service.api.inventory.LotService;

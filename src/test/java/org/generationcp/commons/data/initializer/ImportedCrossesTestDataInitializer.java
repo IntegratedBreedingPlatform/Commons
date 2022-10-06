@@ -3,7 +3,7 @@ package org.generationcp.commons.data.initializer;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.generationcp.commons.parsing.pojo.ImportedCross;
+import org.generationcp.middleware.ruleengine.pojo.ImportedCross;
 
 public class ImportedCrossesTestDataInitializer {
 	public ImportedCross createImportedCrosses(final boolean hasHybridMethod){

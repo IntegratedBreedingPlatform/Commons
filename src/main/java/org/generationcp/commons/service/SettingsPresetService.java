@@ -3,7 +3,7 @@ package org.generationcp.commons.service;
 
 import javax.xml.bind.JAXBException;
 
-import org.generationcp.commons.settings.PresetSetting;
+import org.generationcp.middleware.ruleengine.settings.PresetSetting;
 
 /**
  * Created by IntelliJ IDEA. User: Daniel Villafuerte

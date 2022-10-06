@@ -6,9 +6,9 @@ import javax.xml.bind.JAXBException;
 import junit.framework.Assert;
 
 import org.generationcp.commons.service.SettingsPresetService;
-import org.generationcp.commons.settings.BreedingMethodSetting;
-import org.generationcp.commons.settings.CrossNameSetting;
-import org.generationcp.commons.settings.CrossSetting;
+import org.generationcp.middleware.ruleengine.settings.BreedingMethodSetting;
+import org.generationcp.middleware.ruleengine.settings.CrossNameSetting;
+import org.generationcp.middleware.ruleengine.settings.CrossSetting;
 import org.junit.Before;
 import org.junit.Test;
 

@@ -1,6 +1,7 @@
 
 package org.generationcp.commons.util;
 
+import org.generationcp.middleware.ruleengine.util.ExpressionHelperCallback;
 import org.junit.Test;
 
 /**

@@ -10,7 +10,7 @@ import javax.xml.bind.Marshaller;
 import javax.xml.bind.Unmarshaller;
 
 import org.generationcp.commons.service.SettingsPresetService;
-import org.generationcp.commons.settings.PresetSetting;
+import org.generationcp.middleware.ruleengine.settings.PresetSetting;
 
 /**
  * Created by IntelliJ IDEA. User: Daniel Villafuerte
