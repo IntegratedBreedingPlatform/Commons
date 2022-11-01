@@ -486,7 +486,7 @@ public class BreedingViewImportServiceImpl implements BreedingViewImportService 
 			final List<Integer> traitVariableIds =
 				this.daoFactory.getCvTermDao()
 					.getByNamesAndCvId(summaryStatsCSV.getTraits().stream().map(aliasToVariableNameMap::get).collect(
-						Collectors.toSet()), CvId.VARIABLES).stream()
+						Collectors.toSet()), CvId.VARIABLES, true).stream()
 					.map(CVTerm::getCvTermId).collect(
 						Collectors.toList());
 
