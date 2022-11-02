@@ -382,7 +382,8 @@ public class BreedingViewImportServiceImpl implements BreedingViewImportService 
 			if (factorFromDataSet.getStandardVariable().getPhenotypicType() == PhenotypicType.TRIAL_ENVIRONMENT
 				|| factorFromDataSet.getStandardVariable().getPhenotypicType() == PhenotypicType.GERMPLASM
 				|| factorFromDataSet.getStandardVariable().getId() == TermId.ENTRY_NO.getId()
-				|| factorFromDataSet.getStandardVariable().getId() == TermId.ENTRY_TYPE.getId()) {
+				|| factorFromDataSet.getStandardVariable().getId() == TermId.ENTRY_TYPE.getId()
+				|| factorFromDataSet.getStandardVariable().getId() == TermId.OBS_UNIT_ID.getId()) {
 				factorFromDataSet.setRank(++rank);
 				meansVariableTypeList.add(factorFromDataSet);
 			}
