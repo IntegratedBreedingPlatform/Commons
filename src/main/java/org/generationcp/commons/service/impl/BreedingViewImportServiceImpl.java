@@ -481,8 +481,10 @@ public class BreedingViewImportServiceImpl implements BreedingViewImportService 
 			final SummaryStatsCSV summaryStatsCSV = new SummaryStatsCSV(file, this.localNameToAliasMap);
 
 			final Map<String, String> aliasToVariableNameMap =
-				this.daoFactory.getProjectPropertyDAO().getByProjectId(this.getPlotDataSet(studyId).getId()).stream().collect(
-					Collectors.toMap(ProjectProperty::getAlias, pp -> pp.getVariable().getName()));
+				this.daoFactory.getProjectPropertyDAO().getByProjectId(
+					this.getPlotDataSet(studyId).getId()).stream().filter(projectProperty ->
+					projectProperty.getTypeId() != null && projectProperty.getVariableId() != null)
+					.collect(Collectors.toMap(ProjectProperty::getAlias, pp -> pp.getVariable().getName()));
 
 			final List<Integer> traitVariableIds =
 				this.daoFactory.getCvTermDao()
