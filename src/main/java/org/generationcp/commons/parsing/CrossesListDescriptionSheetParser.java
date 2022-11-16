@@ -129,7 +129,7 @@ public class CrossesListDescriptionSheetParser<T extends ImportedDescriptionDeta
 			if(numberOfUsersWithSpecifiedName == 0) {
 				throw new FileParsingException(CrossesListDescriptionSheetParser.INVALID_LIST_USER);
 			} else if(numberOfUsersWithSpecifiedName == 1) {
-				final UserDto user = this.userService.getUserByFullname(listUserName);
+				final UserDto user = this.userService.getUserByFullname(listUserName).get();
 				this.importedList.setUserId(user.getId());
 			} else {
 				throw new FileParsingException(String.format(CrossesListDescriptionSheetParser.MORE_THAN_ONE_USER, listUserName));

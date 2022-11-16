@@ -21,6 +21,7 @@ import java.io.File;
 import java.net.URL;
 import java.text.ParseException;
 import java.util.Date;
+import java.util.Optional;
 
 @RunWith(MockitoJUnitRunner.class)
 public class CrossesListDescriptionSheetParserTest {
@@ -47,7 +48,7 @@ public class CrossesListDescriptionSheetParserTest {
 		final UserDto userTest = new UserDto();
 		userTest.setId(1);
 		Mockito.when(this.userService.countUsersByFullname(ArgumentMatchers.anyString())).thenReturn(new Long(1));
-		Mockito.when(this.userService.getUserByFullname(ArgumentMatchers.anyString())).thenReturn(userTest);
+		Mockito.when(this.userService.getUserByFullname(ArgumentMatchers.anyString())).thenReturn(Optional.of(userTest));
 
 		this.crossesListDescriptionSheetParser = new CrossesListDescriptionSheetParser<>(this.crossesList, this.userService);
 
