@@ -1,17 +1,12 @@
 
 package org.generationcp.commons.parsing;
 
-import java.io.File;
-import java.net.URL;
-import java.text.ParseException;
-import java.util.Date;
-
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.ss.usermodel.WorkbookFactory;
 import org.generationcp.commons.parsing.pojo.ImportedCrossesList;
 import org.generationcp.commons.util.DateUtil;
 import org.generationcp.middleware.domain.gms.GermplasmListType;
-import org.generationcp.middleware.pojos.workbench.WorkbenchUser;
+import org.generationcp.middleware.service.api.user.UserDto;
 import org.generationcp.middleware.service.api.user.UserService;
 import org.junit.Assert;
 import org.junit.Before;
@@ -21,6 +16,12 @@ import org.mockito.ArgumentMatchers;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.MockitoJUnitRunner;
+
+import java.io.File;
+import java.net.URL;
+import java.text.ParseException;
+import java.util.Date;
+import java.util.Optional;
 
 @RunWith(MockitoJUnitRunner.class)
 public class CrossesListDescriptionSheetParserTest {
@@ -44,10 +45,10 @@ public class CrossesListDescriptionSheetParserTest {
 
 	@Before
 	public void setUp() throws Exception {
-		final WorkbenchUser userTest = new WorkbenchUser();
-		userTest.setUserid(1);
+		final UserDto userTest = new UserDto();
+		userTest.setId(1);
 		Mockito.when(this.userService.countUsersByFullname(ArgumentMatchers.anyString())).thenReturn(new Long(1));
-		Mockito.when(this.userService.getUserByFullname(ArgumentMatchers.anyString())).thenReturn(userTest);
+		Mockito.when(this.userService.getUserByFullname(ArgumentMatchers.anyString())).thenReturn(Optional.of(userTest));
 
 		this.crossesListDescriptionSheetParser = new CrossesListDescriptionSheetParser<>(this.crossesList, this.userService);
 
