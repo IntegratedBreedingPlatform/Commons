@@ -1,11 +1,6 @@
 
 package org.generationcp.commons.parsing;
 
-import java.text.ParseException;
-import java.util.Date;
-import java.util.Locale;
-import java.util.Map;
-
 import org.apache.commons.lang3.StringUtils;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.generationcp.commons.parsing.pojo.ImportedCondition;
@@ -14,10 +9,15 @@ import org.generationcp.commons.parsing.pojo.ImportedFactor;
 import org.generationcp.commons.parsing.pojo.ImportedVariate;
 import org.generationcp.commons.util.DateUtil;
 import org.generationcp.middleware.domain.gms.GermplasmListType;
-import org.generationcp.middleware.pojos.workbench.WorkbenchUser;
+import org.generationcp.middleware.service.api.user.UserDto;
 import org.generationcp.middleware.service.api.user.UserService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.text.ParseException;
+import java.util.Date;
+import java.util.Locale;
+import java.util.Map;
 
 public class CrossesListDescriptionSheetParser<T extends ImportedDescriptionDetails> extends AbstractExcelFileParser<T> {
 
@@ -129,8 +129,8 @@ public class CrossesListDescriptionSheetParser<T extends ImportedDescriptionDeta
 			if(numberOfUsersWithSpecifiedName == 0) {
 				throw new FileParsingException(CrossesListDescriptionSheetParser.INVALID_LIST_USER);
 			} else if(numberOfUsersWithSpecifiedName == 1) {
-				final WorkbenchUser user = this.userService.getUserByFullname(listUserName);
-				this.importedList.setUserId(user.getUserid());
+				final UserDto user = this.userService.getUserByFullname(listUserName).get();
+				this.importedList.setUserId(user.getId());
 			} else {
 				throw new FileParsingException(String.format(CrossesListDescriptionSheetParser.MORE_THAN_ONE_USER, listUserName));
 			}
