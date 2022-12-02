@@ -74,6 +74,7 @@ public class BreedingViewImportServiceImpl implements BreedingViewImportService 
 
 	private static final String REGEX_VALID_BREEDING_VIEW_CHARACTERS = "[^a-zA-Z0-9-_%']+";
 	private static final String LS_MEAN = "LS MEAN";
+	public static final String OBSOLETE_VARIABLE_ERROR = "variableName specified marked as obsolete: ";
 
 	@Autowired
 	private StudyDataManager studyDataManager;
@@ -138,6 +139,10 @@ public class BreedingViewImportServiceImpl implements BreedingViewImportService 
 		boolean meansDataSetExists = false;
 		final CVTerm lsMean =
 			this.daoFactory.getCvTermDao().getByNameAndCvId(BreedingViewImportServiceImpl.LS_MEAN, CvId.METHODS.getId());
+
+		if (lsMean.isObsolete()) {
+			throw new BreedingViewImportException(OBSOLETE_VARIABLE_ERROR);
+		}
 
 		try {
 
@@ -297,9 +302,9 @@ public class BreedingViewImportServiceImpl implements BreedingViewImportService 
 	 * Create the mean dataset based on the map of traits and means from the
 	 * output file and save it to the database
 	 *
-	 * @param study                     - project record of analyzed study
-	 * @param csvHeader                 - array of column headers from means file from BV
-	 * @param plotDataSet               - plot dataset of analyzed study
+	 * @param study       - project record of analyzed study
+	 * @param csvHeader   - array of column headers from means file from BV
+	 * @param plotDataSet - plot dataset of analyzed study
 	 * @return means dataset created and saved
 	 */
 	private DataSet createMeansDataset(
@@ -482,16 +487,27 @@ public class BreedingViewImportServiceImpl implements BreedingViewImportService 
 
 			final Map<String, String> aliasToVariableNameMap =
 				this.daoFactory.getProjectPropertyDAO().getByProjectId(
-					this.getPlotDataSet(studyId).getId()).stream().filter(projectProperty ->
-					projectProperty.getTypeId() != null && projectProperty.getVariableId() != null)
+						this.getPlotDataSet(studyId).getId()).stream().filter(projectProperty ->
+						projectProperty.getTypeId() != null && projectProperty.getVariableId() != null)
 					.collect(Collectors.toMap(ProjectProperty::getAlias, pp -> pp.getVariable().getName()));
 
-			final List<Integer> traitVariableIds =
+			final List<CVTerm> traitVariables =
 				this.daoFactory.getCvTermDao()
 					.getByNamesAndCvId(summaryStatsCSV.getTraits().stream().map(aliasToVariableNameMap::get).collect(
-						Collectors.toSet()), CvId.VARIABLES, true).stream()
-					.map(CVTerm::getCvTermId).collect(
-						Collectors.toList());
+						Collectors.toSet()), CvId.VARIABLES, true);
+
+			final List<CVTerm> obsoleteVariables = traitVariables.stream()
+				.filter(CVTerm::isObsolete)
+				.collect(Collectors.toList());
+			if (!obsoleteVariables.isEmpty()) {
+				throw new BreedingViewImportException(OBSOLETE_VARIABLE_ERROR
+					+ obsoleteVariables.stream()
+					.map(term -> term.getName()).collect(Collectors.joining(", ")));
+			}
+
+			final List<Integer> traitVariableIds = traitVariables.stream()
+				.map(CVTerm::getCvTermId).collect(
+					Collectors.toList());
 
 			final AnalysisVariablesImportRequest analysisVariablesImportRequest = new AnalysisVariablesImportRequest();
 			analysisVariablesImportRequest.setAnalysisMethodNames(summaryStatsCSV.getSummaryHeaders());
@@ -855,7 +871,7 @@ public class BreedingViewImportServiceImpl implements BreedingViewImportService 
 		final Set<String> newVariateNames = new LinkedHashSet<>();
 		final Optional<String> firstVariable = Arrays.stream(csvHeader)
 			.filter((header) -> header.contains(MeansCSV.MEANS_SUFFIX) || //
-								header.contains(MeansCSV.UNIT_ERRORS_SUFFIX) //
+				header.contains(MeansCSV.UNIT_ERRORS_SUFFIX) //
 			).findFirst();
 		final int variatesStartingIndex = Arrays.asList(csvHeader).indexOf(firstVariable.get());
 
