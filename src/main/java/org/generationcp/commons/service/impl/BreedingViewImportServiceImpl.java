@@ -74,7 +74,6 @@ public class BreedingViewImportServiceImpl implements BreedingViewImportService 
 
 	private static final String REGEX_VALID_BREEDING_VIEW_CHARACTERS = "[^a-zA-Z0-9-_%']+";
 	private static final String LS_MEAN = "LS MEAN";
-	public static final String OBSOLETE_VARIABLE_ERROR = "variableName specified marked as obsolete: ";
 
 	@Autowired
 	private StudyDataManager studyDataManager;
@@ -139,10 +138,6 @@ public class BreedingViewImportServiceImpl implements BreedingViewImportService 
 		boolean meansDataSetExists = false;
 		final CVTerm lsMean =
 			this.daoFactory.getCvTermDao().getByNameAndCvId(BreedingViewImportServiceImpl.LS_MEAN, CvId.METHODS.getId());
-
-		if (lsMean.isObsolete()) {
-			throw new BreedingViewImportException(OBSOLETE_VARIABLE_ERROR);
-		}
 
 		try {
 
@@ -491,23 +486,12 @@ public class BreedingViewImportServiceImpl implements BreedingViewImportService 
 						projectProperty.getTypeId() != null && projectProperty.getVariableId() != null)
 					.collect(Collectors.toMap(ProjectProperty::getAlias, pp -> pp.getVariable().getName()));
 
-			final List<CVTerm> traitVariables =
+			final List<Integer> traitVariableIds =
 				this.daoFactory.getCvTermDao()
 					.getByNamesAndCvId(summaryStatsCSV.getTraits().stream().map(aliasToVariableNameMap::get).collect(
-						Collectors.toSet()), CvId.VARIABLES, true);
-
-			final List<CVTerm> obsoleteVariables = traitVariables.stream()
-				.filter(CVTerm::isObsolete)
-				.collect(Collectors.toList());
-			if (!obsoleteVariables.isEmpty()) {
-				throw new BreedingViewImportException(OBSOLETE_VARIABLE_ERROR
-					+ obsoleteVariables.stream()
-					.map(term -> term.getName()).collect(Collectors.joining(", ")));
-			}
-
-			final List<Integer> traitVariableIds = traitVariables.stream()
-				.map(CVTerm::getCvTermId).collect(
-					Collectors.toList());
+						Collectors.toSet()), CvId.VARIABLES, true).stream()
+					.map(CVTerm::getCvTermId).collect(
+						Collectors.toList());
 
 			final AnalysisVariablesImportRequest analysisVariablesImportRequest = new AnalysisVariablesImportRequest();
 			analysisVariablesImportRequest.setAnalysisMethodNames(summaryStatsCSV.getSummaryHeaders());
@@ -564,7 +548,9 @@ public class BreedingViewImportServiceImpl implements BreedingViewImportService 
 						analysisSummaryVariableNamesMap.get(variablesMap.get(traitSummaryStat.getKey(), analysisSummaryMethodName));
 					final String summaryStatValue =
 						traitSummaryStat.getValue().get(summaryStatsCSV.getSummaryHeaders().indexOf(analysisSummaryMethodName));
-					values.put(variableName, StringUtils.isEmpty(summaryStatValue) ? null : Double.valueOf(summaryStatValue));
+					if (variableName != null) {
+						values.put(variableName, StringUtils.isEmpty(summaryStatValue) ? null : Double.valueOf(summaryStatValue));
+					}
 				}
 			}
 			summaryData.setValues(values);
