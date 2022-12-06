@@ -59,6 +59,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
@@ -303,7 +304,8 @@ public class BreedingViewImportServiceImpl implements BreedingViewImportService 
 	 * @return means dataset created and saved
 	 */
 	private DataSet createMeansDataset(
-		final DmsProject study, final String[] csvHeader, final DataSet plotDataSet, final CVTerm lSMean) {
+		final DmsProject study, final String[] csvHeader, final DataSet plotDataSet, final CVTerm lSMean)
+		throws BreedingViewImportException {
 
 		final VariableTypeList meansVariableTypeList = new VariableTypeList();
 		final VariableList meansVariableList = new VariableList();
@@ -351,7 +353,7 @@ public class BreedingViewImportServiceImpl implements BreedingViewImportService 
 	 */
 	void createMeansVariablesFromImportFileAndAddToList(
 		final String[] csvHeader, final VariableTypeList plotVariates,
-		final VariableTypeList meansVariableTypeList, final String programUUID, final CVTerm lsMean) {
+		final VariableTypeList meansVariableTypeList, final String programUUID, final CVTerm lsMean) throws BreedingViewImportException {
 		final boolean isSummaryVariable = false;
 		final int numberOfMeansVariables = meansVariableTypeList.getVariableTypes().size();
 		int rank = meansVariableTypeList.getVariableTypes().get(numberOfMeansVariables - 1).getRank() + 1;
@@ -734,7 +736,7 @@ public class BreedingViewImportServiceImpl implements BreedingViewImportService 
 	// FIXME No need to return back input parameter meansDataSet
 	protected DataSet appendVariableTypesToExistingMeans(
 		final String[] csvHeader, final DataSet plotDataSet, final DataSet meansDataSet,
-		final String programUUID, final CVTerm lsMean) {
+		final String programUUID, final CVTerm lsMean) throws BreedingViewImportException {
 		final int numberOfMeansVariables = meansDataSet.getVariableTypes().getVariableTypes().size();
 		int rank = meansDataSet.getVariableTypes().getVariableTypes().get(numberOfMeansVariables - 1).getRank() + 1;
 		final Set<String> traitsWithoutMeanVariable =
@@ -853,8 +855,7 @@ public class BreedingViewImportServiceImpl implements BreedingViewImportService 
 	 * @return Set<String> - unique list of new variates
 	 */
 	private Set<String> getAllNewVariatesToProcess(
-		final String[] csvHeader, final List<DMSVariableType> existingMeansVariables) {
-		final Set<String> newVariateNames = new LinkedHashSet<>();
+		final String[] csvHeader, final List<DMSVariableType> existingMeansVariables) throws BreedingViewImportException {
 		final Optional<String> firstVariable = Arrays.stream(csvHeader)
 			.filter((header) -> header.contains(MeansCSV.MEANS_SUFFIX) || //
 				header.contains(MeansCSV.UNIT_ERRORS_SUFFIX) //
@@ -863,25 +864,34 @@ public class BreedingViewImportServiceImpl implements BreedingViewImportService 
 
 		// Exclude the environment, entry, gid and Desigantion factors which are first
 		// column headers
-		final List<String> inputDataSetVariateNames =
-			new ArrayList<>(Arrays.asList(Arrays.copyOfRange(csvHeader, variatesStartingIndex, csvHeader.length)));
-
-		for (final String csvHeaderNames : inputDataSetVariateNames) {
-			final String variateName = csvHeaderNames.substring(0, csvHeaderNames.lastIndexOf('_'));
-			newVariateNames.add(variateName);
-		}
+		final Set<String> inputDataSetVariateNames =
+			new LinkedHashSet<>(Arrays.asList(Arrays.copyOfRange(csvHeader, variatesStartingIndex, csvHeader.length)));
 
 		// Only process the new traits that were not part of the previous
 		// analysis
 		if (existingMeansVariables != null) {
 			for (final DMSVariableType dmsVariableType : existingMeansVariables) {
-				String variateName = dmsVariableType.getLocalName().trim();
-				variateName = variateName.substring(0, variateName.lastIndexOf('_'));
-				newVariateNames.remove(variateName);
+				final String variateName = dmsVariableType.getLocalName().trim();
+				inputDataSetVariateNames.remove(variateName);
 			}
 		}
 
-		return newVariateNames;
+		if (!inputDataSetVariateNames.isEmpty()) {
+			// validate that none of the variables to process are obsolete
+			final List<CVTerm> cvTermList = this.daoFactory.getCvTermDao().getByNamesAndCvId(new HashSet<>(inputDataSetVariateNames),
+				CvId.VARIABLES, true);
+			final String obsoleteVariates = cvTermList.stream().filter(CVTerm::isObsolete)
+				.map(CVTerm::getName).collect(Collectors.joining(", "));
+			if (StringUtils.isNotEmpty(obsoleteVariates)) {
+				throw new BreedingViewImportException("variableName specified marked as obsolete: " + obsoleteVariates);
+			}
+
+			return inputDataSetVariateNames.stream()
+				.map(csvHeaderName -> csvHeaderName.substring(0, csvHeaderName.lastIndexOf('_')))
+				.collect(Collectors.toSet());
+		}
+
+		return inputDataSetVariateNames;
 	}
 
 	/**
