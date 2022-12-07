@@ -34,6 +34,7 @@ import org.generationcp.middleware.domain.ontology.DataType;
 import org.generationcp.middleware.domain.ontology.Scale;
 import org.generationcp.middleware.domain.ontology.VariableType;
 import org.generationcp.middleware.enumeration.DatasetTypeEnum;
+import org.generationcp.middleware.exceptions.MiddlewareException;
 import org.generationcp.middleware.manager.DaoFactory;
 import org.generationcp.middleware.manager.api.OntologyDataManager;
 import org.generationcp.middleware.manager.api.StudyDataManager;
@@ -75,6 +76,8 @@ public class BreedingViewImportServiceImpl implements BreedingViewImportService 
 
 	private static final String REGEX_VALID_BREEDING_VIEW_CHARACTERS = "[^a-zA-Z0-9-_%']+";
 	private static final String LS_MEAN = "LS MEAN";
+
+	private static final String ERROR_VARIABLE_OBSOLETE = "BV_UPLOAD_ERROR_OBSOLETE_VARIABLES";
 
 	@Autowired
 	private StudyDataManager studyDataManager;
@@ -176,6 +179,8 @@ public class BreedingViewImportServiceImpl implements BreedingViewImportService 
 					trialDataSet.getId(), studyId);
 
 			}
+		} catch (final BreedingViewImportException bvie) {
+			throw bvie;
 		} catch (final Exception e) {
 			throw new BreedingViewImportException(e.getMessage(), e);
 		}
@@ -524,6 +529,8 @@ public class BreedingViewImportServiceImpl implements BreedingViewImportService 
 					summaryStatisticsImportRequest);
 			}
 
+		} catch (final MiddlewareException mwe) {
+			throw new BreedingViewImportException(mwe.getMessage(), mwe.getMessageKey(), mwe.getMessageParameters());
 		} catch (final Exception e) {
 			throw new BreedingViewImportException(e.getMessage(), e);
 		}
@@ -858,7 +865,7 @@ public class BreedingViewImportServiceImpl implements BreedingViewImportService 
 		final String[] csvHeader, final List<DMSVariableType> existingMeansVariables) throws BreedingViewImportException {
 		final Set<String> newVariateNames = new LinkedHashSet<>();
 		final Optional<String> firstVariable = Arrays.stream(csvHeader)
-			.filter((header) -> header.contains(MeansCSV.MEANS_SUFFIX) || //
+			.filter(header -> header.contains(MeansCSV.MEANS_SUFFIX) || //
 				header.contains(MeansCSV.UNIT_ERRORS_SUFFIX) //
 			).findFirst();
 		final int variatesStartingIndex = Arrays.asList(csvHeader).indexOf(firstVariable.get());
@@ -884,12 +891,12 @@ public class BreedingViewImportServiceImpl implements BreedingViewImportService 
 			if (!inputDataSetVariateNames.isEmpty()) {
 				// validate that none of the variables to process are obsolete
 				final List<CVTerm> cvTermList = this.daoFactory.getCvTermDao().getByNamesAndCvId(
-					new HashSet<String>(inputDataSetVariateNames),
+					new HashSet<>(inputDataSetVariateNames),
 					CvId.VARIABLES, true);
 				final String obsoleteVariates = cvTermList.stream().filter(CVTerm::isObsolete)
 					.map(CVTerm::getName).collect(Collectors.joining(", "));
 				if (StringUtils.isNotEmpty(obsoleteVariates)) {
-					throw new BreedingViewImportException("variableName specified marked as obsolete: " + obsoleteVariates);
+					throw new BreedingViewImportException("", ERROR_VARIABLE_OBSOLETE, obsoleteVariates);
 				}
 			}
 
