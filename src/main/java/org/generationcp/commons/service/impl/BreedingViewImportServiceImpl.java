@@ -888,21 +888,21 @@ public class BreedingViewImportServiceImpl implements BreedingViewImportService 
 				.collect(Collectors.toSet());
 			inputDataSetVariateNames.removeAll(existingMeansVariableNames);
 
-			if (!inputDataSetVariateNames.isEmpty()) {
-				// validate that none of the variables to process are obsolete
-				final List<CVTerm> cvTermList = this.daoFactory.getCvTermDao().getByNamesAndCvId(
-					new HashSet<>(inputDataSetVariateNames),
-					CvId.VARIABLES, true);
-				final String obsoleteVariates = cvTermList.stream().filter(CVTerm::isObsolete)
-					.map(CVTerm::getName).collect(Collectors.joining(", "));
-				if (StringUtils.isNotEmpty(obsoleteVariates)) {
-					throw new BreedingViewImportException("", ERROR_VARIABLE_OBSOLETE, obsoleteVariates);
-				}
-			}
-
 			newVariateNames.removeAll(existingMeansVariableNames.stream()
 				.map(variableName -> variableName.substring(0, variableName.lastIndexOf('_')))
 				.collect(Collectors.toSet()));
+		}
+
+		if (!inputDataSetVariateNames.isEmpty()) {
+			// validate that none of the variables to process are obsolete
+			final List<CVTerm> cvTermList = this.daoFactory.getCvTermDao().getByNamesAndCvId(
+				new HashSet<>(inputDataSetVariateNames),
+				CvId.VARIABLES, true);
+			final String obsoleteVariates = cvTermList.stream().filter(CVTerm::isObsolete)
+				.map(CVTerm::getName).collect(Collectors.joining(", "));
+			if (StringUtils.isNotEmpty(obsoleteVariates)) {
+				throw new BreedingViewImportException("", ERROR_VARIABLE_OBSOLETE, obsoleteVariates);
+			}
 		}
 
 		return newVariateNames;
