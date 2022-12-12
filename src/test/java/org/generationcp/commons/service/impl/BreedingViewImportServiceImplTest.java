@@ -8,6 +8,7 @@ import org.apache.commons.collections.map.MultiKeyMap;
 import org.generationcp.commons.breedingview.parsing.MeansCSV;
 import org.generationcp.commons.breedingview.parsing.SummaryStatsCSV;
 import org.generationcp.commons.data.initializer.SummaryStatsTestDataInitializer;
+import org.generationcp.commons.exceptions.BreedingViewImportException;
 import org.generationcp.commons.spring.util.ContextUtil;
 import org.generationcp.middleware.api.ontology.OntologyVariableService;
 import org.generationcp.middleware.dao.dms.DmsProjectDao;
@@ -519,7 +520,7 @@ public class BreedingViewImportServiceImplTest {
 	}
 
 	@Test
-	public void testCreateMeansVariablesFromImportFile() {
+	public void testCreateMeansVariablesFromImportFile() throws BreedingViewImportException {
 		// Setup test data from file - 4 traits with 2 analysis variables each
 		// (_Means and _ErrorEstimate suffixes)
 		final VariableTypeList meansVariableList = new VariableTypeList();
@@ -570,7 +571,7 @@ public class BreedingViewImportServiceImplTest {
 	}
 
 	@Test
-	public void testAppendVariableTypesToExistingMeans() {
+	public void testAppendVariableTypesToExistingMeans() throws BreedingViewImportException {
 		// Setup test data from file - 4 traits with 2 analysis variables each
 		// (_Means and _ErrorEstimate suffixes)
 		final String[] prevAnalyzedTraits = {BreedingViewImportServiceImplTest.TRAIT_ASI, BreedingViewImportServiceImplTest.TRAIT_EPH};

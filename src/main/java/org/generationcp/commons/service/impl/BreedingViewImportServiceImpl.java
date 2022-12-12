@@ -34,6 +34,7 @@ import org.generationcp.middleware.domain.ontology.DataType;
 import org.generationcp.middleware.domain.ontology.Scale;
 import org.generationcp.middleware.domain.ontology.VariableType;
 import org.generationcp.middleware.enumeration.DatasetTypeEnum;
+import org.generationcp.middleware.exceptions.MiddlewareException;
 import org.generationcp.middleware.manager.DaoFactory;
 import org.generationcp.middleware.manager.api.OntologyDataManager;
 import org.generationcp.middleware.manager.api.StudyDataManager;
@@ -59,6 +60,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
@@ -74,6 +76,8 @@ public class BreedingViewImportServiceImpl implements BreedingViewImportService 
 
 	private static final String REGEX_VALID_BREEDING_VIEW_CHARACTERS = "[^a-zA-Z0-9-_%']+";
 	private static final String LS_MEAN = "LS MEAN";
+
+	private static final String ERROR_VARIABLE_OBSOLETE = "BV_UPLOAD_ERROR_OBSOLETE_VARIABLES";
 
 	@Autowired
 	private StudyDataManager studyDataManager;
@@ -175,6 +179,8 @@ public class BreedingViewImportServiceImpl implements BreedingViewImportService 
 					trialDataSet.getId(), studyId);
 
 			}
+		} catch (final BreedingViewImportException bvie) {
+			throw bvie;
 		} catch (final Exception e) {
 			throw new BreedingViewImportException(e.getMessage(), e);
 		}
@@ -297,13 +303,14 @@ public class BreedingViewImportServiceImpl implements BreedingViewImportService 
 	 * Create the mean dataset based on the map of traits and means from the
 	 * output file and save it to the database
 	 *
-	 * @param study                     - project record of analyzed study
-	 * @param csvHeader                 - array of column headers from means file from BV
-	 * @param plotDataSet               - plot dataset of analyzed study
+	 * @param study       - project record of analyzed study
+	 * @param csvHeader   - array of column headers from means file from BV
+	 * @param plotDataSet - plot dataset of analyzed study
 	 * @return means dataset created and saved
 	 */
 	private DataSet createMeansDataset(
-		final DmsProject study, final String[] csvHeader, final DataSet plotDataSet, final CVTerm lSMean) {
+		final DmsProject study, final String[] csvHeader, final DataSet plotDataSet, final CVTerm lSMean)
+		throws BreedingViewImportException {
 
 		final VariableTypeList meansVariableTypeList = new VariableTypeList();
 		final VariableList meansVariableList = new VariableList();
@@ -351,7 +358,7 @@ public class BreedingViewImportServiceImpl implements BreedingViewImportService 
 	 */
 	void createMeansVariablesFromImportFileAndAddToList(
 		final String[] csvHeader, final VariableTypeList plotVariates,
-		final VariableTypeList meansVariableTypeList, final String programUUID, final CVTerm lsMean) {
+		final VariableTypeList meansVariableTypeList, final String programUUID, final CVTerm lsMean) throws BreedingViewImportException {
 		final boolean isSummaryVariable = false;
 		final int numberOfMeansVariables = meansVariableTypeList.getVariableTypes().size();
 		int rank = meansVariableTypeList.getVariableTypes().get(numberOfMeansVariables - 1).getRank() + 1;
@@ -482,8 +489,8 @@ public class BreedingViewImportServiceImpl implements BreedingViewImportService 
 
 			final Map<String, String> aliasToVariableNameMap =
 				this.daoFactory.getProjectPropertyDAO().getByProjectId(
-					this.getPlotDataSet(studyId).getId()).stream().filter(projectProperty ->
-					projectProperty.getTypeId() != null && projectProperty.getVariableId() != null)
+						this.getPlotDataSet(studyId).getId()).stream().filter(projectProperty ->
+						projectProperty.getTypeId() != null && projectProperty.getVariableId() != null)
 					.collect(Collectors.toMap(ProjectProperty::getAlias, pp -> pp.getVariable().getName()));
 
 			final List<Integer> traitVariableIds =
@@ -522,6 +529,8 @@ public class BreedingViewImportServiceImpl implements BreedingViewImportService 
 					summaryStatisticsImportRequest);
 			}
 
+		} catch (final MiddlewareException mwe) {
+			throw new BreedingViewImportException(mwe.getMessage(), mwe.getMessageKey(), mwe.getMessageParameters());
 		} catch (final Exception e) {
 			throw new BreedingViewImportException(e.getMessage(), e);
 		}
@@ -548,7 +557,9 @@ public class BreedingViewImportServiceImpl implements BreedingViewImportService 
 						analysisSummaryVariableNamesMap.get(variablesMap.get(traitSummaryStat.getKey(), analysisSummaryMethodName));
 					final String summaryStatValue =
 						traitSummaryStat.getValue().get(summaryStatsCSV.getSummaryHeaders().indexOf(analysisSummaryMethodName));
-					values.put(variableName, StringUtils.isEmpty(summaryStatValue) ? null : Double.valueOf(summaryStatValue));
+					if (variableName != null) {
+						values.put(variableName, StringUtils.isEmpty(summaryStatValue) ? null : Double.valueOf(summaryStatValue));
+					}
 				}
 			}
 			summaryData.setValues(values);
@@ -732,7 +743,7 @@ public class BreedingViewImportServiceImpl implements BreedingViewImportService 
 	// FIXME No need to return back input parameter meansDataSet
 	protected DataSet appendVariableTypesToExistingMeans(
 		final String[] csvHeader, final DataSet plotDataSet, final DataSet meansDataSet,
-		final String programUUID, final CVTerm lsMean) {
+		final String programUUID, final CVTerm lsMean) throws BreedingViewImportException {
 		final int numberOfMeansVariables = meansDataSet.getVariableTypes().getVariableTypes().size();
 		int rank = meansDataSet.getVariableTypes().getVariableTypes().get(numberOfMeansVariables - 1).getRank() + 1;
 		final Set<String> traitsWithoutMeanVariable =
@@ -851,18 +862,18 @@ public class BreedingViewImportServiceImpl implements BreedingViewImportService 
 	 * @return Set<String> - unique list of new variates
 	 */
 	private Set<String> getAllNewVariatesToProcess(
-		final String[] csvHeader, final List<DMSVariableType> existingMeansVariables) {
+		final String[] csvHeader, final List<DMSVariableType> existingMeansVariables) throws BreedingViewImportException {
 		final Set<String> newVariateNames = new LinkedHashSet<>();
 		final Optional<String> firstVariable = Arrays.stream(csvHeader)
-			.filter((header) -> header.contains(MeansCSV.MEANS_SUFFIX) || //
-								header.contains(MeansCSV.UNIT_ERRORS_SUFFIX) //
+			.filter(header -> header.contains(MeansCSV.MEANS_SUFFIX) || //
+				header.contains(MeansCSV.UNIT_ERRORS_SUFFIX) //
 			).findFirst();
 		final int variatesStartingIndex = Arrays.asList(csvHeader).indexOf(firstVariable.get());
 
 		// Exclude the environment, entry, gid and Desigantion factors which are first
 		// column headers
-		final List<String> inputDataSetVariateNames =
-			new ArrayList<>(Arrays.asList(Arrays.copyOfRange(csvHeader, variatesStartingIndex, csvHeader.length)));
+		final Set<String> inputDataSetVariateNames =
+			new LinkedHashSet<>(Arrays.asList(Arrays.copyOfRange(csvHeader, variatesStartingIndex, csvHeader.length)));
 
 		for (final String csvHeaderNames : inputDataSetVariateNames) {
 			final String variateName = csvHeaderNames.substring(0, csvHeaderNames.lastIndexOf('_'));
@@ -872,10 +883,25 @@ public class BreedingViewImportServiceImpl implements BreedingViewImportService 
 		// Only process the new traits that were not part of the previous
 		// analysis
 		if (existingMeansVariables != null) {
-			for (final DMSVariableType dmsVariableType : existingMeansVariables) {
-				String variateName = dmsVariableType.getLocalName().trim();
-				variateName = variateName.substring(0, variateName.lastIndexOf('_'));
-				newVariateNames.remove(variateName);
+			final Set<String> existingMeansVariableNames = existingMeansVariables.stream()
+				.map(varType -> varType.getLocalName().trim())
+				.collect(Collectors.toSet());
+			inputDataSetVariateNames.removeAll(existingMeansVariableNames);
+
+			newVariateNames.removeAll(existingMeansVariableNames.stream()
+				.map(variableName -> variableName.substring(0, variableName.lastIndexOf('_')))
+				.collect(Collectors.toSet()));
+		}
+
+		if (!inputDataSetVariateNames.isEmpty()) {
+			// validate that none of the variables to process are obsolete
+			final List<CVTerm> cvTermList = this.daoFactory.getCvTermDao().getByNamesAndCvId(
+				new HashSet<>(inputDataSetVariateNames),
+				CvId.VARIABLES, true);
+			final String obsoleteVariates = cvTermList.stream().filter(CVTerm::isObsolete)
+				.map(CVTerm::getName).collect(Collectors.joining(", "));
+			if (StringUtils.isNotEmpty(obsoleteVariates)) {
+				throw new BreedingViewImportException("", ERROR_VARIABLE_OBSOLETE, obsoleteVariates);
 			}
 		}
 
