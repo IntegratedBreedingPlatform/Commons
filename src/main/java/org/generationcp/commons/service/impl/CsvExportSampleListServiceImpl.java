@@ -144,7 +144,7 @@ public class CsvExportSampleListServiceImpl implements CsvExportSampleListServic
 				columnValue = sampleDetailsDTO.getDesignation();
 				break;
 			case PLOT_NO:
-				columnValue = String.valueOf(sampleDetailsDTO.getPlotNo());
+				columnValue = sampleDetailsDTO.getPlotNo();
 				break;
 			case SAMPLE_NO:
 				columnValue = String.valueOf(sampleDetailsDTO.getSampleNumber());
