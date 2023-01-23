@@ -1,20 +1,6 @@
 package org.generationcp.commons.service.impl;
 
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.OutputStreamWriter;
-import java.nio.charset.StandardCharsets;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Date;
-import java.util.LinkedList;
-import java.util.List;
-
-import javax.annotation.Resource;
-
+import au.com.bytecode.opencsv.CSVWriter;
 import org.apache.commons.lang.StringUtils;
 import org.generationcp.commons.pojo.ExportColumnHeader;
 import org.generationcp.commons.pojo.ExportRow;
@@ -31,7 +17,19 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import au.com.bytecode.opencsv.CSVWriter;
+import javax.annotation.Resource;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.OutputStreamWriter;
+import java.nio.charset.StandardCharsets;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Date;
+import java.util.LinkedList;
+import java.util.List;
 
 @Service
 @Transactional
@@ -67,17 +65,18 @@ public class CsvExportSampleListServiceImpl implements CsvExportSampleListServic
 
 	@Override
 	public FileExportInfo export(final List<SampleDetailsDTO> sampleDetailsDTOs, final String filenameWithoutExtension,
-			final List<String> visibleColumns, final String enumeratorVariableName) throws IOException {
+		final List<String> visibleColumns, final String enumeratorVariableName) throws IOException {
 		LOG.debug("Initialize export");
 		this.enumeratorVariableName = enumeratorVariableName;
 
 		final List<ExportColumnHeader> exportColumnHeaders = this.getExportColumnHeaders(visibleColumns);
 		final List<ExportRow> exportRows = this.getExportColumnValues(exportColumnHeaders, sampleDetailsDTOs);
 
-		final String cleanFilenameWithoutExtension = FileUtils.sanitizeFileName(FileNameGenerator.generateFileName(filenameWithoutExtension));
+		final String cleanFilenameWithoutExtension =
+			FileUtils.sanitizeFileName(FileNameGenerator.generateFileName(filenameWithoutExtension));
 		final String filenamePath = this.installationDirectoryUtil
-				.getTempFileInOutputDirectoryForProjectAndTool(cleanFilenameWithoutExtension, FILE_EXTENSION,
-						this.contextUtil.getProjectInContext(), ToolName.FIELDBOOK_WEB);
+			.getTempFileInOutputDirectoryForProjectAndTool(cleanFilenameWithoutExtension, FILE_EXTENSION,
+				this.contextUtil.getProjectInContext(), ToolName.FIELDBOOK_WEB);
 		this.generateCSVFile(exportRows, exportColumnHeaders, filenamePath);
 
 		LOG.debug("Finished export");
@@ -86,7 +85,7 @@ public class CsvExportSampleListServiceImpl implements CsvExportSampleListServic
 	}
 
 	protected List<ExportRow> getExportColumnValues(final List<ExportColumnHeader> columnHeaders,
-			final List<SampleDetailsDTO> sampleDetailsDTOs) {
+		final List<SampleDetailsDTO> sampleDetailsDTOs) {
 		final List<ExportRow> exportRows = new ArrayList<>();
 		int i = 1;
 		for (final SampleDetailsDTO sampleDetailsDTO : sampleDetailsDTOs) {
@@ -104,8 +103,9 @@ public class CsvExportSampleListServiceImpl implements CsvExportSampleListServic
 		int i = 0;
 
 		final List<String> availableColumns = new LinkedList<>(AVAILABLE_COLUMNS);
-		if (visibleColumns.contains(this.enumeratorVariableName)) {
+		if (!PLOT_NO.equals(this.enumeratorVariableName) && visibleColumns.contains(this.enumeratorVariableName)) {
 			// Add enumerator column (DATE_NO, PLANT_NO, custom enumerator variable, etc.) after PLOT_NO column
+			// Do not add if enumeratorVariableName is also PLOT_NO (parent observations)
 			availableColumns.add(availableColumns.indexOf(PLOT_NO), this.enumeratorVariableName);
 		}
 
@@ -122,7 +122,7 @@ public class CsvExportSampleListServiceImpl implements CsvExportSampleListServic
 	}
 
 	private ExportRow getColumnValueMap(final List<ExportColumnHeader> columns,
-			final SampleDetailsDTO sampleDetailsDTO) {
+		final SampleDetailsDTO sampleDetailsDTO) {
 		final ExportRow row = new ExportRow();
 
 		for (final ExportColumnHeader column : columns) {
@@ -142,6 +142,9 @@ public class CsvExportSampleListServiceImpl implements CsvExportSampleListServic
 				break;
 			case DESIGNATION:
 				columnValue = sampleDetailsDTO.getDesignation();
+				break;
+			case PLOT_NO:
+				columnValue = sampleDetailsDTO.getPlotNo();
 				break;
 			case SAMPLE_NO:
 				columnValue = String.valueOf(sampleDetailsDTO.getSampleNumber());
@@ -190,12 +193,12 @@ public class CsvExportSampleListServiceImpl implements CsvExportSampleListServic
 	}
 
 	public File generateCSVFile(final List<ExportRow> exportRows, final List<ExportColumnHeader> exportColumnHeaders,
-			final String fileNameFullPath) throws IOException {
+		final String fileNameFullPath) throws IOException {
 		return this.generateCSVFile(exportRows, exportColumnHeaders, fileNameFullPath, true);
 	}
 
 	public File generateCSVFile(final List<ExportRow> exportRows, final List<ExportColumnHeader> exportColumnHeaders,
-			final String fileNameFullPath, final boolean includeHeader) throws IOException {
+		final String fileNameFullPath, final boolean includeHeader) throws IOException {
 		final File newFile = new File(fileNameFullPath);
 
 		final CSVWriter writer = new CSVWriter(new OutputStreamWriter(new FileOutputStream(fileNameFullPath), StandardCharsets.UTF_8), ',');
