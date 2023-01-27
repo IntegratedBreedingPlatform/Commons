@@ -2,6 +2,7 @@
 package org.generationcp.commons.service.impl;
 
 import org.generationcp.middleware.ruleengine.RuleException;
+import org.generationcp.middleware.ruleengine.RuleExecutionNamespace;
 import org.generationcp.middleware.ruleengine.RuleFactory;
 import org.generationcp.middleware.ruleengine.service.RulesService;
 import org.generationcp.middleware.ruleengine.stockid.StockIDGenerationRuleExecutionContext;
@@ -43,7 +44,7 @@ public class StockServiceImpl implements StockService {
 	 */
 	@Override
 	public String calculateNextStockIDPrefix(final String breederIdentifier, final String separator) {
-		List<String> sequenceList = Arrays.asList(this.ruleFactory.getRuleSequenceForNamespace("stockid"));
+		List<String> sequenceList = Arrays.asList(this.ruleFactory.getRuleSequenceForNamespace(RuleExecutionNamespace.STOCK));
 		StockIDGenerationRuleExecutionContext context = new StockIDGenerationRuleExecutionContext(sequenceList, this.lotService);
 		context.setBreederIdentifier(breederIdentifier);
 		context.setSeparator(separator);
