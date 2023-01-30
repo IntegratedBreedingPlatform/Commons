@@ -45,15 +45,6 @@ public class WorkbenchAppPathResolver {
 				finalUrl, finalParam);
 	}
 
-
-	public static String getWorkbenchAppPath(final Tool tool, final String idParam) {
-		return WorkbenchAppPathResolver.getWorkbenchAppPath(tool, idParam, "");
-	}
-
-	public static String getWorkbenchAppPath(final Tool tool, final Integer idParam) {
-		return WorkbenchAppPathResolver.getWorkbenchAppPath(tool, String.valueOf(idParam), "");
-	}
-
 	public static String getWorkbenchAppPath(final Tool tool, final String idParam, final String addtlParam) {
 		String appPath = tool.getPath();
 
