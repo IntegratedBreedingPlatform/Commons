@@ -320,6 +320,7 @@ public class TreeViewUtil {
 			treeNode.setIsLocked(studyReference.getIsLocked());
 			treeNode.setOwnerId(String.valueOf(studyReference.getOwnerId()));
 			treeNode.setOwner(studyReference.getOwnerName());
+			treeNode.setOwnerUserName(studyReference.getOwnerUserName());
 		}
 		return treeNode;
 	}
