@@ -32,6 +32,7 @@ public class TreeNode {
 	private String title;
 	private String key;
 	private String owner;
+	private String ownerUserName;
 	private String ownerId;
 	private String description;
 	private String type;
@@ -214,12 +215,18 @@ public class TreeNode {
 		this.owner = owner;
 	}
 
-	
+	public String getOwnerUserName() {
+		return ownerUserName;
+	}
+
+	public void setOwnerUserName(final String ownerUserName) {
+		this.ownerUserName = ownerUserName;
+	}
+
 	public String getOwnerId() {
 		return this.ownerId;
 	}
 
-	
 	public void setOwnerId(final String ownerId) {
 		this.ownerId = ownerId;
 	}
