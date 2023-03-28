@@ -36,7 +36,7 @@ public class HTTPRequestAwareServletFilter implements Filter {
 	private static final Logger LOG = LoggerFactory.getLogger(HTTPRequestAwareServletFilter.class);
 	public static final String CSP_CONFIG = "default-src 'self'; "
 		+ "img-src 'self' data: https:; "
-		+ "frame-src 'self' data: blob: https://surveyhero.com; "
+		+ "frame-src 'self' https://surveyhero.com https://www.surveyhero.com data: blob: https://surveyhero.com; "
 		+ "connect-src 'self' https:; "
 		+ "object-src 'none'; "
 		+ "script-src 'self' https://embed-cdn.surveyhero.com https://nominatim.openstreetmap.org 'unsafe-inline' 'unsafe-eval'; "
