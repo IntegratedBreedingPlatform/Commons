@@ -11,7 +11,12 @@
 
 package org.generationcp.commons.hibernate;
 
-import java.io.IOException;
+import org.generationcp.commons.hibernate.util.HttpRequestAwareUtil;
+import org.generationcp.commons.util.ContextUtil;
+import org.generationcp.commons.util.SpringAppContextProvider;
+import org.generationcp.middleware.util.Constants;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.servlet.Filter;
 import javax.servlet.FilterChain;
@@ -21,12 +26,7 @@ import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-
-import org.generationcp.commons.hibernate.util.HttpRequestAwareUtil;
-import org.generationcp.commons.util.ContextUtil;
-import org.generationcp.commons.util.SpringAppContextProvider;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import java.io.IOException;
 
 /**
  * Created with IntelliJ IDEA. User: cyrus Date: 11/2/13 Time: 1:31 PM To change this template use File | Settings | File Templates.
@@ -34,13 +34,6 @@ import org.slf4j.LoggerFactory;
 public class HTTPRequestAwareServletFilter implements Filter {
 
 	private static final Logger LOG = LoggerFactory.getLogger(HTTPRequestAwareServletFilter.class);
-	public static final String CSP_CONFIG = "default-src 'self'; "
-		+ "img-src 'self' data: https:; "
-		+ "frame-src 'self' https://surveyhero.com https://www.surveyhero.com data: blob: https://surveyhero.com; "
-		+ "connect-src 'self' https:; "
-		+ "object-src 'none'; "
-		+ "script-src 'self' https://embed-cdn.surveyhero.com https://nominatim.openstreetmap.org 'unsafe-inline' 'unsafe-eval'; "
-		+ "style-src 'self' https://embed-cdn.surveyhero.com 'unsafe-inline'; ";
 
 	@Override
 	public void init(final FilterConfig filterConfig) throws ServletException {
@@ -57,7 +50,7 @@ public class HTTPRequestAwareServletFilter implements Filter {
 		resp.setHeader("X-Content-Type-Options", "nosniff");
 		resp.setHeader("Referrer-Policy", "strict-origin-when-cross-origin");
 		resp.setHeader("Feature-Policy", "self");
-		resp.setHeader("Content-Security-Policy", CSP_CONFIG);
+		resp.setHeader("Content-Security-Policy", Constants.CSP_CONFIG);
 
 		final String requestUri =
 				String.format("%s:%s%s?%s", req.getServerName(), req.getServerPort(), req.getRequestURI(), req.getQueryString());
@@ -68,7 +61,7 @@ public class HTTPRequestAwareServletFilter implements Filter {
 			synchronized (this) {
 				HttpRequestAwareUtil.onRequestStart(SpringAppContextProvider.getApplicationContext(), req, resp);
 			}
-			
+
 
 			filterChain.doFilter(servletRequest, servletResponse);
 
