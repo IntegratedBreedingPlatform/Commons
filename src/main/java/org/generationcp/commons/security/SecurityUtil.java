@@ -51,6 +51,11 @@ public abstract class SecurityUtil {
 		return authorities;
 	}
 
+	public static boolean hasAnyAuthority(final List<String> permissions) {
+		final Collection<? extends GrantedAuthority> authorities = SecurityUtil.getLoggedInUserAuthorities();
+		return authorities.stream().anyMatch(o -> permissions.contains(o.getAuthority()));
+	}
+
 	public static String getEncodedToken() {
 		return Base64.encodeBase64URLSafeString(SecurityUtil.getLoggedInUserName().getBytes());
 	}
