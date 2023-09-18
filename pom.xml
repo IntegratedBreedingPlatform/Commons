@@ -11,7 +11,7 @@
 		<vaadin.version>6.8.18</vaadin.version>
         <middleware.version>${project.version}</middleware.version>
 		<spring.version>4.1.6.RELEASE</spring.version>
-		<spring.security.version>3.2.5.RELEASE</spring.security.version>
+		<spring.security.version>5.2.2.RELEASE</spring.security.version>
 		<atomikos.version>3.9.3</atomikos.version>
 		<envConfig>${user.name}</envConfig>
 	</properties>
